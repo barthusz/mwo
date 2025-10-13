@@ -1,0 +1,98 @@
+/**
+ * Gallery Styles
+ * Masonry gallery layout for Gutenberg galleries
+ */
+
+/* Gutenberg Gallery Block */
+.wp-block-gallery,
+.blocks-gallery-grid {
+    display: block !important;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.wp-block-gallery .wp-block-image,
+.wp-block-gallery .blocks-gallery-item {
+    margin-bottom: 8px !important;
+    width: 100%;
+    padding: 0;
+    box-sizing: border-box;
+    float: left;
+}
+
+/* Gallery columns */
+@media (min-width: 600px) {
+    .wp-block-gallery.columns-2 .wp-block-image,
+    .wp-block-gallery.columns-2 .blocks-gallery-item {
+        width: calc(50% - 4px);
+    }
+
+    .wp-block-gallery.columns-3 .wp-block-image,
+    .wp-block-gallery.columns-3 .blocks-gallery-item {
+        width: calc(33.333% - 5.333px);
+    }
+
+    .wp-block-gallery.columns-4 .wp-block-image,
+    .wp-block-gallery.columns-4 .blocks-gallery-item {
+        width: calc(25% - 6px);
+    }
+
+    .wp-block-gallery.columns-5 .wp-block-image,
+    .wp-block-gallery.columns-5 .blocks-gallery-item {
+        width: calc(20% - 6.4px);
+    }
+
+    .wp-block-gallery.columns-6 .wp-block-image,
+    .wp-block-gallery.columns-6 .blocks-gallery-item {
+        width: calc(16.666% - 6.667px);
+    }
+}
+
+/* Default to 3 columns if no column class */
+@media (min-width: 600px) {
+    .wp-block-gallery:not([class*="columns-"]) .wp-block-image,
+    .wp-block-gallery:not([class*="columns-"]) .blocks-gallery-item {
+        width: calc(33.333% - 5.333px);
+    }
+}
+
+/* Gallery images */
+.wp-block-gallery img {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+/* Gallery item */
+.wp-block-gallery .wp-block-image figure,
+.wp-block-gallery .blocks-gallery-item figure {
+    margin: 0;
+    height: auto;
+}
+
+/* Remove default flex styles from Gutenberg */
+.wp-block-gallery.has-nested-images {
+    display: block !important;
+    flex-wrap: unset !important;
+    gap: 0 !important;
+}
+
+/* Gallery captions */
+.wp-block-gallery figcaption {
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    padding: 8px;
+    font-size: 13px;
+    text-align: center;
+}
+
+/* Lightbox support */
+.wp-block-gallery a {
+    display: block;
+}
+
+.wp-block-gallery a:hover {
+    opacity: 0.9;
+}

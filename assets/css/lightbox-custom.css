@@ -1,0 +1,125 @@
+/**
+ * Custom GLightbox Styling
+ * Clean, minimal lightbox design
+ */
+
+/* Lightbox overlay - darker background */
+.goverlay {
+    background: rgba(0, 0, 0, 0.95) !important;
+}
+
+/* Lightbox container */
+.glightbox-container {
+    width: 100%;
+    height: 100%;
+}
+
+/* Navigation arrows - cleaner design */
+.gslide-description {
+    background: transparent !important;
+}
+
+.gnext,
+.gprev {
+    background: rgba(255, 255, 255, 0.1) !important;
+    width: 60px !important;
+    height: 60px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.3s ease !important;
+}
+
+.gnext:hover,
+.gprev:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    transform: scale(1.1) !important;
+}
+
+.gnext svg,
+.gprev svg {
+    width: 24px !important;
+    height: 24px !important;
+}
+
+/* Close button */
+.gclose {
+    background: rgba(255, 255, 255, 0.1) !important;
+    width: 50px !important;
+    height: 50px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    top: 20px !important;
+    right: 20px !important;
+    transition: all 0.3s ease !important;
+}
+
+.gclose:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    transform: scale(1.1) rotate(90deg) !important;
+}
+
+.gclose svg {
+    width: 24px !important;
+    height: 24px !important;
+}
+
+/* Image counter */
+.gslide-title {
+    color: #fff !important;
+    font-size: 14px !important;
+    padding: 10px 20px !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    border-radius: 20px !important;
+    position: absolute !important;
+    top: 20px !important;
+    left: 20px !important;
+}
+
+/* Image description/caption */
+.gslide-desc {
+    background: rgba(0, 0, 0, 0.7) !important;
+    color: #fff !important;
+    padding: 15px 20px !important;
+    border-radius: 4px !important;
+    max-width: 600px !important;
+    margin: 0 auto !important;
+}
+
+/* Remove box shadow from image */
+.gslide-image img {
+    box-shadow: none !important;
+    max-height: 90vh !important;
+    object-fit: contain !important;
+}
+
+/* Smooth transitions */
+.gslide-media {
+    transition: opacity 0.3s ease !important;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    .gnext,
+    .gprev {
+        width: 50px !important;
+        height: 50px !important;
+    }
+
+    .gclose {
+        width: 40px !important;
+        height: 40px !important;
+        top: 10px !important;
+        right: 10px !important;
+    }
+
+    .gslide-title {
+        top: 10px !important;
+        left: 10px !important;
+        font-size: 12px !important;
+        padding: 8px 15px !important;
+    }
+}

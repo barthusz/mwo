@@ -52,8 +52,30 @@ function mwo_enqueue_assets() {
     // Sidebar styles
     wp_enqueue_style( 'mwo-sidebar', get_template_directory_uri() . '/assets/css/sidebar.css', array(), '1.0.0' );
 
+    // Gallery styles
+    wp_enqueue_style( 'mwo-gallery', get_template_directory_uri() . '/assets/css/gallery.css', array(), '1.0.0' );
+
+    // GLightbox styles
+    wp_enqueue_style( 'glightbox', get_template_directory_uri() . '/assets/css/glightbox.min.css', array(), '3.2.0' );
+    wp_enqueue_style( 'mwo-lightbox-custom', get_template_directory_uri() . '/assets/css/lightbox-custom.css', array( 'glightbox' ), '1.0.0' );
+
     // Main theme styles
-    wp_enqueue_style( 'mwo-style', get_stylesheet_uri(), array( 'font-awesome', 'mwo-layout', 'mwo-sidebar' ), '1.0.0' );
+    wp_enqueue_style( 'mwo-style', get_stylesheet_uri(), array( 'font-awesome', 'mwo-layout', 'mwo-sidebar', 'mwo-gallery', 'glightbox' ), '1.0.0' );
+
+    // Masonry (WordPress bundled)
+    wp_enqueue_script( 'masonry' );
+
+    // imagesLoaded (WordPress bundled)
+    wp_enqueue_script( 'imagesloaded' );
+
+    // Masonry initialization
+    wp_enqueue_script( 'mwo-masonry-init', get_template_directory_uri() . '/js/masonry-init.js', array( 'jquery', 'masonry', 'imagesloaded' ), '1.0.0', true );
+
+    // GLightbox
+    wp_enqueue_script( 'glightbox', get_template_directory_uri() . '/js/glightbox.min.js', array(), '3.2.0', true );
+
+    // Lightbox initialization
+    wp_enqueue_script( 'mwo-lightbox-init', get_template_directory_uri() . '/js/lightbox-init.js', array( 'glightbox' ), '1.0.0', true );
 }
 add_action( 'wp_enqueue_scripts', 'mwo_enqueue_assets' );
 
