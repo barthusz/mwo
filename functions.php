@@ -43,6 +43,19 @@ function mwo_enqueue_assets() {
 add_action( 'wp_enqueue_scripts', 'mwo_enqueue_assets' );
 
 /**
+ * Enqueue admin scripts
+ */
+function mwo_enqueue_admin_scripts( $hook ) {
+    if ( 'dashboard_page_mwo-settings' !== $hook ) {
+        return;
+    }
+
+    wp_enqueue_media();
+    wp_enqueue_script( 'mwo-admin', get_template_directory_uri() . '/js/admin.js', array( 'jquery' ), '1.0.0', true );
+}
+add_action( 'admin_enqueue_scripts', 'mwo_enqueue_admin_scripts' );
+
+/**
  * Register widget areas
  */
 function mwo_widgets_init() {
@@ -115,6 +128,22 @@ function mwo_register_settings() {
         'mwo_sticky_header',
         '<span id="mwo-sticky-header-label">' . __( 'Sticky Header', 'mwo' ) . '</span>',
         'mwo_sticky_header_callback',
+        'mwo-settings',
+        'mwo_general_section'
+    );
+
+    add_settings_field(
+        'mwo_logo',
+        __( 'Logo', 'mwo' ),
+        'mwo_logo_callback',
+        'mwo-settings',
+        'mwo_general_section'
+    );
+
+    add_settings_field(
+        'mwo_logo_width',
+        __( 'Logo breedte', 'mwo' ),
+        'mwo_logo_width_callback',
         'mwo-settings',
         'mwo_general_section'
     );
@@ -219,6 +248,45 @@ function mwo_sticky_header_callback() {
 }
 
 /**
+ * Logo upload field callback
+ */
+function mwo_logo_callback() {
+    $options = get_option( 'mwo_options' );
+    $logo_id = isset( $options['logo'] ) ? $options['logo'] : '';
+    $logo_url = $logo_id ? wp_get_attachment_image_url( $logo_id, 'full' ) : '';
+    ?>
+    <div class="mwo-logo-upload">
+        <input type="hidden" name="mwo_options[logo]" id="mwo-logo-id" value="<?php echo esc_attr( $logo_id ); ?>">
+        <div class="mwo-logo-preview" style="margin-bottom: 10px;">
+            <?php if ( $logo_url ) : ?>
+                <img src="<?php echo esc_url( $logo_url ); ?>" style="max-width: 200px; height: auto; display: block;">
+            <?php endif; ?>
+        </div>
+        <button type="button" class="button mwo-upload-logo-button">
+            <?php echo $logo_url ? esc_html__( 'Wijzig logo', 'mwo' ) : esc_html__( 'Upload logo', 'mwo' ); ?>
+        </button>
+        <?php if ( $logo_url ) : ?>
+            <button type="button" class="button mwo-remove-logo-button"><?php esc_html_e( 'Verwijder logo', 'mwo' ); ?></button>
+        <?php endif; ?>
+        <p class="description"><?php esc_html_e( 'Upload een logo in hoge resolutie (retina) voor scherpe weergave.', 'mwo' ); ?></p>
+    </div>
+    <?php
+}
+
+/**
+ * Logo width field callback
+ */
+function mwo_logo_width_callback() {
+    $options = get_option( 'mwo_options' );
+    $logo_width = isset( $options['logo_width'] ) ? $options['logo_width'] : 200;
+    ?>
+    <input type="number" name="mwo_options[logo_width]" value="<?php echo esc_attr( $logo_width ); ?>" min="50" max="800" step="1">
+    <span>px</span>
+    <p class="description"><?php esc_html_e( 'Maximale breedte van het logo (hoogte schaalt automatisch mee).', 'mwo' ); ?></p>
+    <?php
+}
+
+/**
  * Show site title field callback
  */
 function mwo_show_site_title_callback() {
@@ -286,6 +354,21 @@ function mwo_sanitize_options( $input ) {
         $sanitized['menu_placement'] = in_array( $input['menu_placement'], array( 'left', 'top' ) ) ? $input['menu_placement'] : 'left';
     } else {
         $sanitized['menu_placement'] = isset( $existing['menu_placement'] ) ? $existing['menu_placement'] : 'left';
+    }
+
+    // Logo
+    if ( isset( $input['logo'] ) ) {
+        $sanitized['logo'] = absint( $input['logo'] );
+    }
+
+    // Logo width
+    if ( isset( $input['logo_width'] ) ) {
+        $sanitized['logo_width'] = absint( $input['logo_width'] );
+        if ( $sanitized['logo_width'] < 50 ) {
+            $sanitized['logo_width'] = 50;
+        } elseif ( $sanitized['logo_width'] > 800 ) {
+            $sanitized['logo_width'] = 800;
+        }
     }
 
     // Checkboxes
