@@ -57,3 +57,57 @@ function mwo_widgets_init() {
     ) );
 }
 add_action( 'widgets_init', 'mwo_widgets_init' );
+
+/**
+ * Add admin settings page
+ */
+function mwo_add_admin_page() {
+    add_dashboard_page(
+        __( 'Mijn Werk Online', 'mwo' ),
+        __( 'Mijn Werk Online', 'mwo' ),
+        'manage_options',
+        'mwo-settings',
+        'mwo_settings_page'
+    );
+}
+add_action( 'admin_menu', 'mwo_add_admin_page' );
+
+/**
+ * Settings page content
+ */
+function mwo_settings_page() {
+    ?>
+    <div class="wrap">
+        <h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+        <form method="post" action="options.php">
+            <?php
+            settings_fields( 'mwo_settings' );
+            do_settings_sections( 'mwo-settings' );
+            submit_button();
+            ?>
+        </form>
+    </div>
+    <?php
+}
+
+/**
+ * Register settings
+ */
+function mwo_register_settings() {
+    register_setting( 'mwo_settings', 'mwo_options' );
+
+    add_settings_section(
+        'mwo_general_section',
+        __( 'Algemene Instellingen', 'mwo' ),
+        'mwo_general_section_callback',
+        'mwo-settings'
+    );
+}
+add_action( 'admin_init', 'mwo_register_settings' );
+
+/**
+ * Section callback
+ */
+function mwo_general_section_callback() {
+    echo '<p>' . esc_html__( 'Configureer hier de instellingen voor Mijn Werk Online.', 'mwo' ) . '</p>';
+}
