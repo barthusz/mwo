@@ -43,8 +43,8 @@ add_action( 'after_setup_theme', 'mwo_setup' );
  * Enqueue scripts and styles
  */
 function mwo_enqueue_assets() {
-    // Font Awesome
-    wp_enqueue_style( 'font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css', array(), '6.5.1' );
+    // Font Awesome (local)
+    wp_enqueue_style( 'font-awesome', get_template_directory_uri() . '/assets/css/all.min.css', array(), '6.5.1' );
 
     wp_enqueue_style( 'mwo-style', get_stylesheet_uri(), array(), '1.0.0' );
 }
@@ -58,8 +58,8 @@ function mwo_enqueue_admin_scripts( $hook ) {
         return;
     }
 
-    // Font Awesome for admin
-    wp_enqueue_style( 'font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css', array(), '6.5.1' );
+    // Font Awesome for admin (local)
+    wp_enqueue_style( 'font-awesome', get_template_directory_uri() . '/assets/css/all.min.css', array(), '6.5.1' );
 
     wp_enqueue_media();
     wp_enqueue_script( 'mwo-admin', get_template_directory_uri() . '/js/admin.js', array( 'jquery' ), '1.0.0', true );
