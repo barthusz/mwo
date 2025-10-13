@@ -13,6 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Include required files
  */
 require_once get_template_directory() . '/inc/social-media.php';
+require_once get_template_directory() . '/inc/gallery-captions.php';
 
 /**
  * Theme setup
@@ -76,6 +77,12 @@ function mwo_enqueue_assets() {
 
     // Lightbox initialization
     wp_enqueue_script( 'mwo-lightbox-init', get_template_directory_uri() . '/js/lightbox-init.js', array( 'glightbox' ), '1.0.0', true );
+
+    // Pass theme options to JavaScript
+    $options = get_option( 'mwo_options' );
+    wp_localize_script( 'mwo-lightbox-init', 'mwoOptions', array(
+        'lightboxCaptions' => isset( $options['lightbox_captions'] ) ? $options['lightbox_captions'] : 1,
+    ) );
 }
 add_action( 'wp_enqueue_scripts', 'mwo_enqueue_assets' );
 
@@ -216,6 +223,14 @@ function mwo_register_settings() {
         'mwo_disable_footer_credits',
         __( 'Footercredits uitschakelen', 'mwo' ),
         'mwo_disable_footer_credits_callback',
+        'mwo-settings',
+        'mwo_general_section'
+    );
+
+    add_settings_field(
+        'mwo_lightbox_captions',
+        __( 'Lightbox bijschriften tonen', 'mwo' ),
+        'mwo_lightbox_captions_callback',
         'mwo-settings',
         'mwo_general_section'
     );
@@ -383,6 +398,20 @@ function mwo_disable_footer_credits_callback() {
 }
 
 /**
+ * Lightbox captions field callback
+ */
+function mwo_lightbox_captions_callback() {
+    $options = get_option( 'mwo_options' );
+    $lightbox_captions = isset( $options['lightbox_captions'] ) ? $options['lightbox_captions'] : 1;
+    ?>
+    <label>
+        <input type="checkbox" name="mwo_options[lightbox_captions]" value="1" <?php checked( $lightbox_captions, 1 ); ?>>
+        <?php esc_html_e( 'Toon bijschriften in lightbox (aan rechterkant)', 'mwo' ); ?>
+    </label>
+    <?php
+}
+
+/**
  * Sanitize options
  */
 function mwo_sanitize_options( $input ) {
@@ -417,6 +446,7 @@ function mwo_sanitize_options( $input ) {
     $sanitized['show_tagline'] = isset( $input['show_tagline'] ) ? 1 : 0;
     $sanitized['disable_page_titles'] = isset( $input['disable_page_titles'] ) ? 1 : 0;
     $sanitized['disable_footer_credits'] = isset( $input['disable_footer_credits'] ) ? 1 : 0;
+    $sanitized['lightbox_captions'] = isset( $input['lightbox_captions'] ) ? 1 : 0;
 
     // Social media URLs
     $sanitized = mwo_sanitize_social_urls( $input, $sanitized );
