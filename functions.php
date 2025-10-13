@@ -46,7 +46,14 @@ function mwo_enqueue_assets() {
     // Font Awesome (local)
     wp_enqueue_style( 'font-awesome', get_template_directory_uri() . '/assets/css/all.min.css', array(), '6.5.1' );
 
-    wp_enqueue_style( 'mwo-style', get_stylesheet_uri(), array(), '1.0.0' );
+    // Layout styles
+    wp_enqueue_style( 'mwo-layout', get_template_directory_uri() . '/assets/css/layout.css', array(), '1.0.0' );
+
+    // Sidebar styles
+    wp_enqueue_style( 'mwo-sidebar', get_template_directory_uri() . '/assets/css/sidebar.css', array(), '1.0.0' );
+
+    // Main theme styles
+    wp_enqueue_style( 'mwo-style', get_stylesheet_uri(), array( 'font-awesome', 'mwo-layout', 'mwo-sidebar' ), '1.0.0' );
 }
 add_action( 'wp_enqueue_scripts', 'mwo_enqueue_assets' );
 

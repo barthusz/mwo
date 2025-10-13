@@ -4,8 +4,15 @@
  *
  * @package Mijn_Werk_Online
  */
+
+// Get theme options
+$options = get_option( 'mwo_options' );
+$disable_footer_credits = isset( $options['disable_footer_credits'] ) && $options['disable_footer_credits'] ? true : false;
 ?>
 
+</div><!-- .site-main-wrapper -->
+
+<?php if ( ! $disable_footer_credits ) : ?>
 <footer class="site-footer">
     <div class="footer-content">
         <p>&copy; <?php echo date( 'Y' ); ?> <?php bloginfo( 'name' ); ?>. <?php esc_html_e( 'Alle rechten voorbehouden.', 'mwo' ); ?></p>
@@ -19,6 +26,7 @@
         ?>
     </div>
 </footer>
+<?php endif; ?>
 
 <?php wp_footer(); ?>
 </body>
