@@ -9,16 +9,21 @@
     display: block !important;
     list-style: none;
     padding: 0;
-    margin: 0;
+    margin: 0 0 20px 0;
+    /* Clearfix to prevent layout issues */
+    overflow: hidden;
 }
 
 .wp-block-gallery .wp-block-image,
 .wp-block-gallery .blocks-gallery-item {
-    margin-bottom: 8px !important;
+    margin: 0 0 8px 0 !important;
     width: 100%;
     padding: 0;
     box-sizing: border-box;
     float: left;
+    /* Prevent sub-pixel rendering issues */
+    backface-visibility: hidden;
+    transform: translateZ(0);
 }
 
 /* Gallery columns */
@@ -95,4 +100,18 @@
 
 .wp-block-gallery a:hover {
     opacity: 0.9;
+}
+
+/* Ensure gallery container properly clears floats */
+.wp-block-gallery::after,
+.blocks-gallery-grid::after {
+    content: "";
+    display: block;
+    clear: both;
+}
+
+/* Prevent orphan items at bottom */
+.wp-block-gallery .wp-block-image:last-child,
+.wp-block-gallery .blocks-gallery-item:last-child {
+    margin-bottom: 0 !important;
 }

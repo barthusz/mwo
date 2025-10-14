@@ -54,7 +54,7 @@ function mwo_enqueue_assets() {
     wp_enqueue_style( 'mwo-sidebar', get_template_directory_uri() . '/assets/css/sidebar.css', array(), '1.0.0' );
 
     // Gallery styles
-    wp_enqueue_style( 'mwo-gallery', get_template_directory_uri() . '/assets/css/gallery.css', array(), '1.0.0' );
+    wp_enqueue_style( 'mwo-gallery', get_template_directory_uri() . '/assets/css/gallery.css', array(), '1.0.1' );
 
     // Mobile menu styles
     wp_enqueue_style( 'mwo-mobile-menu', get_template_directory_uri() . '/assets/css/mobile-menu.css', array(), '1.0.0' );
@@ -73,7 +73,7 @@ function mwo_enqueue_assets() {
     wp_enqueue_script( 'imagesloaded' );
 
     // Masonry initialization
-    wp_enqueue_script( 'mwo-masonry-init', get_template_directory_uri() . '/js/masonry-init.js', array( 'jquery', 'masonry', 'imagesloaded' ), '1.0.0', true );
+    wp_enqueue_script( 'mwo-masonry-init', get_template_directory_uri() . '/js/masonry-init.js', array( 'jquery', 'masonry', 'imagesloaded' ), '1.0.1', true );
 
     // GLightbox
     wp_enqueue_script( 'glightbox', get_template_directory_uri() . '/js/glightbox.min.js', array(), '3.2.0', true );
