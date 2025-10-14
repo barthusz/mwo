@@ -78,6 +78,9 @@ function mwo_enqueue_assets() {
     // Lightbox initialization
     wp_enqueue_script( 'mwo-lightbox-init', get_template_directory_uri() . '/js/lightbox-init.js', array( 'glightbox' ), '1.0.0', true );
 
+    // Sticky header
+    wp_enqueue_script( 'mwo-sticky-header', get_template_directory_uri() . '/js/sticky-header.js', array(), '1.0.0', true );
+
     // Pass theme options to JavaScript
     $options = get_option( 'mwo_options' );
     wp_localize_script( 'mwo-lightbox-init', 'mwoOptions', array(
