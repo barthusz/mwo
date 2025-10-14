@@ -67,11 +67,15 @@ function mwo_enqueue_assets() {
         return; // Don't load other assets on intro screen
     }
 
+    // Get theme options for dynamic CSS
+    $options = get_option( 'mwo_options' );
+    $content_container_width = isset( $options['content_container_width'] ) ? $options['content_container_width'] : 1170;
+
     // Font Awesome (local)
     wp_enqueue_style( 'font-awesome', get_template_directory_uri() . '/assets/css/all.min.css', array(), '6.5.1' );
 
     // Layout styles
-    wp_enqueue_style( 'mwo-layout', get_template_directory_uri() . '/assets/css/layout.css', array(), '1.0.0' );
+    wp_enqueue_style( 'mwo-layout', get_template_directory_uri() . '/assets/css/layout.css', array(), '1.1.3' );
 
     // Sidebar styles
     wp_enqueue_style( 'mwo-sidebar', get_template_directory_uri() . '/assets/css/sidebar.css', array(), '1.0.0' );
@@ -111,10 +115,17 @@ function mwo_enqueue_assets() {
     wp_enqueue_script( 'mwo-mobile-menu', get_template_directory_uri() . '/js/mobile-menu.js', array(), '1.0.0', true );
 
     // Pass theme options to JavaScript
-    $options = get_option( 'mwo_options' );
     wp_localize_script( 'mwo-lightbox-init', 'mwoOptions', array(
         'lightboxCaptions' => isset( $options['lightbox_captions'] ) ? $options['lightbox_captions'] : 1,
     ) );
+
+    // Add inline CSS for dynamic content container width
+    $custom_css = "
+        .content-container {
+            max-width: {$content_container_width}px;
+        }
+    ";
+    wp_add_inline_style( 'mwo-layout', $custom_css );
 }
 add_action( 'wp_enqueue_scripts', 'mwo_enqueue_assets' );
 
@@ -287,6 +298,14 @@ function mwo_register_settings() {
         'mwo_intro_button_text',
         '<span id="mwo-intro-button-text-label">' . __( 'Intro knoptekst', 'mwo' ) . '</span>',
         'mwo_intro_button_text_callback',
+        'mwo-settings',
+        'mwo_general_section'
+    );
+
+    add_settings_field(
+        'mwo_content_container_width',
+        __( 'Content Container breedte', 'mwo' ),
+        'mwo_content_container_width_callback',
         'mwo-settings',
         'mwo_general_section'
     );
@@ -560,6 +579,19 @@ function mwo_intro_button_text_callback() {
 }
 
 /**
+ * Content container width field callback
+ */
+function mwo_content_container_width_callback() {
+    $options = get_option( 'mwo_options' );
+    $content_container_width = isset( $options['content_container_width'] ) ? $options['content_container_width'] : 1170;
+    ?>
+    <input type="number" name="mwo_options[content_container_width]" value="<?php echo esc_attr( $content_container_width ); ?>" min="400" max="2000" step="10">
+    <span>px</span>
+    <p class="description"><?php esc_html_e( 'Maximale breedte van de content container in de "Content Container" template.', 'mwo' ); ?></p>
+    <?php
+}
+
+/**
  * Redirect to intro screen if enabled
  */
 function mwo_maybe_redirect_to_intro() {
@@ -671,6 +703,18 @@ function mwo_sanitize_options( $input ) {
         $sanitized['intro_button_text'] = sanitize_text_field( $input['intro_button_text'] );
     } else {
         $sanitized['intro_button_text'] = 'VIEW MY WORK';
+    }
+
+    // Content container width
+    if ( isset( $input['content_container_width'] ) ) {
+        $sanitized['content_container_width'] = absint( $input['content_container_width'] );
+        if ( $sanitized['content_container_width'] < 400 ) {
+            $sanitized['content_container_width'] = 400;
+        } elseif ( $sanitized['content_container_width'] > 2000 ) {
+            $sanitized['content_container_width'] = 2000;
+        }
+    } else {
+        $sanitized['content_container_width'] = 1170;
     }
 
     // Social media URLs
