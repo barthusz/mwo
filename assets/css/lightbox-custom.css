@@ -246,6 +246,12 @@
     }
 
     .desc-right .gslide-image img {
-        max-width: 100vw !important;
+        max-width: calc(100vw - 20px) !important;
+        padding: 0 10px !important;
+    }
+
+    .gslide-image img {
+        max-width: calc(100vw - 20px) !important;
+        padding: 0 10px !important;
     }
 }
