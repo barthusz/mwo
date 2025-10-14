@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', function() {
         closeEffect: 'fade',
         slideEffect: 'slide',
         moreLength: 0,
-        descPosition: 'right'
+        descPosition: 'right',
+        zoomable: false
     });
 });
