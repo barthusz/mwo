@@ -32,10 +32,6 @@ if ( $menu_placement === 'top' && $sticky_header ) {
 <?php wp_body_open(); ?>
 
 <header class="site-header">
-    <?php if ( $menu_placement === 'top' ) : ?>
-        <div class="header-inner">
-    <?php endif; ?>
-
     <div class="site-branding">
         <?php
         // Logo
@@ -82,32 +78,30 @@ if ( $menu_placement === 'top' && $sticky_header ) {
     </nav>
 
     <?php
-    // Social media icons
-    $social_links = isset( $options['social'] ) ? $options['social'] : array();
-    if ( ! empty( $social_links ) ) {
-        $platforms = mwo_get_social_platforms();
-        ?>
-        <div class="social-media-links">
-            <?php
-            foreach ( $social_links as $platform => $url ) {
-                if ( ! empty( $url ) && isset( $platforms[ $platform ] ) ) {
-                    printf(
-                        '<a href="%s" target="_blank" rel="noopener noreferrer" aria-label="%s"><i class="%s"></i></a>',
-                        esc_url( $url ),
-                        esc_attr( $platforms[ $platform ]['label'] ),
-                        esc_attr( $platforms[ $platform ]['icon'] )
-                    );
-                }
-            }
+    // Social media icons - only show in left menu
+    if ( $menu_placement === 'left' ) {
+        $social_links = isset( $options['social'] ) ? $options['social'] : array();
+        if ( ! empty( $social_links ) ) {
+            $platforms = mwo_get_social_platforms();
             ?>
-        </div>
-        <?php
+            <div class="social-media-links">
+                <?php
+                foreach ( $social_links as $platform => $url ) {
+                    if ( ! empty( $url ) && isset( $platforms[ $platform ] ) ) {
+                        printf(
+                            '<a href="%s" target="_blank" rel="noopener noreferrer" aria-label="%s"><i class="%s"></i></a>',
+                            esc_url( $url ),
+                            esc_attr( $platforms[ $platform ]['label'] ),
+                            esc_attr( $platforms[ $platform ]['icon'] )
+                        );
+                    }
+                }
+                ?>
+            </div>
+            <?php
+        }
     }
     ?>
-
-    <?php if ( $menu_placement === 'top' ) : ?>
-        </div>
-    <?php endif; ?>
 </header>
 
 <div class="site-main-wrapper">

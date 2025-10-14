@@ -97,12 +97,12 @@
 
 /* Top menu specific adjustments */
 body.menu-top .site-branding {
-    text-align: left;
+    text-align: center;
     margin-bottom: 0;
 }
 
 body.menu-top .site-branding .custom-logo {
-    max-height: 50px;
+    max-height: 100px;
     width: auto;
 }
 
@@ -113,13 +113,15 @@ body.menu-top .site-navigation {
 body.menu-top .site-navigation ul {
     display: flex;
     gap: 30px;
+    justify-content: center;
+    flex-wrap: wrap;
+    text-align: center;
 }
 
 body.menu-top .site-navigation li {
     margin-bottom: 0;
 }
 
-body.menu-top .social-media-links {
-    margin-top: 0;
-    padding-top: 0;
+body.menu-top .site-navigation a {
+    padding: 10px 15px;
 }
