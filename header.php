@@ -13,6 +13,20 @@ $show_site_title = isset( $options['show_site_title'] ) && $options['show_site_t
 $show_tagline = isset( $options['show_tagline'] ) && $options['show_tagline'] ? true : false;
 $logo_id = isset( $options['logo'] ) ? $options['logo'] : '';
 $logo_width = isset( $options['logo_width'] ) ? $options['logo_width'] : 200;
+$enable_intro = isset( $options['enable_intro'] ) && $options['enable_intro'] ? true : false;
+
+// Determine logo link URL
+$logo_link_url = home_url( '/' );
+if ( $enable_intro ) {
+    $intro_page = get_pages( array(
+        'meta_key'   => '_wp_page_template',
+        'meta_value' => 'template-intro.php',
+        'number'     => 1,
+    ) );
+    if ( ! empty( $intro_page ) ) {
+        $logo_link_url = get_permalink( $intro_page[0]->ID );
+    }
+}
 
 // Build body classes
 $body_classes = array();
@@ -41,7 +55,7 @@ if ( $menu_placement === 'top' && $sticky_header ) {
                 if ( $logo_url ) {
                     printf(
                         '<a href="%s" class="custom-logo-link" rel="home"><img src="%s" alt="%s" class="custom-logo" style="max-width: %dpx; height: auto;"></a>',
-                        esc_url( home_url( '/' ) ),
+                        esc_url( $logo_link_url ),
                         esc_url( $logo_url ),
                         esc_attr( get_bloginfo( 'name' ) ),
                         absint( $logo_width )
@@ -67,7 +81,7 @@ if ( $menu_placement === 'top' && $sticky_header ) {
             if ( $logo_url ) {
                 printf(
                     '<a href="%s" class="custom-logo-link" rel="home"><img src="%s" alt="%s" class="custom-logo" style="max-width: %dpx; height: auto;"></a>',
-                    esc_url( home_url( '/' ) ),
+                    esc_url( $logo_link_url ),
                     esc_url( $logo_url ),
                     esc_attr( get_bloginfo( 'name' ) ),
                     absint( $logo_width )
@@ -79,7 +93,7 @@ if ( $menu_placement === 'top' && $sticky_header ) {
         if ( $show_site_title ) {
             printf(
                 '<h1 class="site-title"><a href="%s" rel="home">%s</a></h1>',
-                esc_url( home_url( '/' ) ),
+                esc_url( $logo_link_url ),
                 esc_html( get_bloginfo( 'name' ) )
             );
         }

@@ -44,6 +44,13 @@ add_action( 'after_setup_theme', 'mwo_setup' );
  * Enqueue scripts and styles
  */
 function mwo_enqueue_assets() {
+    // Intro screen styles and scripts (only on intro template)
+    if ( is_page_template( 'template-intro.php' ) ) {
+        wp_enqueue_style( 'mwo-intro-screen', get_template_directory_uri() . '/assets/css/intro-screen.css', array(), '1.0.1' );
+        wp_enqueue_script( 'mwo-intro-screen', get_template_directory_uri() . '/js/intro-screen.js', array( 'jquery' ), '1.0.0', true );
+        return; // Don't load other assets on intro screen
+    }
+
     // Font Awesome (local)
     wp_enqueue_style( 'font-awesome', get_template_directory_uri() . '/assets/css/all.min.css', array(), '6.5.1' );
 
@@ -107,7 +114,7 @@ function mwo_enqueue_admin_scripts( $hook ) {
     wp_enqueue_style( 'font-awesome', get_template_directory_uri() . '/assets/css/all.min.css', array(), '6.5.1' );
 
     wp_enqueue_media();
-    wp_enqueue_script( 'mwo-admin', get_template_directory_uri() . '/js/admin.js', array( 'jquery' ), '1.0.0', true );
+    wp_enqueue_script( 'mwo-admin', get_template_directory_uri() . '/js/admin.js', array( 'jquery' ), '1.0.1', true );
 }
 add_action( 'admin_enqueue_scripts', 'mwo_enqueue_admin_scripts' );
 
@@ -240,6 +247,30 @@ function mwo_register_settings() {
         'mwo_lightbox_captions',
         __( 'Lightbox bijschriften tonen', 'mwo' ),
         'mwo_lightbox_captions_callback',
+        'mwo-settings',
+        'mwo_general_section'
+    );
+
+    add_settings_field(
+        'mwo_enable_intro',
+        '<span id="mwo-enable-intro-label">' . __( 'Intro scherm inschakelen', 'mwo' ) . '</span>',
+        'mwo_enable_intro_callback',
+        'mwo-settings',
+        'mwo_general_section'
+    );
+
+    add_settings_field(
+        'mwo_intro_images',
+        '<span id="mwo-intro-images-label">' . __( 'Intro achtergrondafbeeldingen', 'mwo' ) . '</span>',
+        'mwo_intro_images_callback',
+        'mwo-settings',
+        'mwo_general_section'
+    );
+
+    add_settings_field(
+        'mwo_intro_button_text',
+        '<span id="mwo-intro-button-text-label">' . __( 'Intro knoptekst', 'mwo' ) . '</span>',
+        'mwo_intro_button_text_callback',
         'mwo-settings',
         'mwo_general_section'
     );
@@ -421,6 +452,160 @@ function mwo_lightbox_captions_callback() {
 }
 
 /**
+ * Enable intro screen field callback
+ */
+function mwo_enable_intro_callback() {
+    $options = get_option( 'mwo_options' );
+    $enable_intro = isset( $options['enable_intro'] ) ? $options['enable_intro'] : 0;
+    ?>
+    <label>
+        <input type="checkbox" name="mwo_options[enable_intro]" value="1" <?php checked( $enable_intro, 1 ); ?> id="mwo-enable-intro-checkbox">
+        <?php esc_html_e( 'Toon intro scherm voordat bezoekers de site betreden', 'mwo' ); ?>
+    </label>
+    <script>
+    jQuery(document).ready(function($) {
+        function toggleIntroFields() {
+            var isEnabled = $('#mwo-enable-intro-checkbox').is(':checked');
+            if (isEnabled) {
+                $('#mwo-intro-images-wrapper').show();
+                $('#mwo-intro-button-text-wrapper').show();
+                $('#mwo-intro-images-label').parent().parent().show();
+                $('#mwo-intro-button-text-label').parent().parent().show();
+            } else {
+                $('#mwo-intro-images-wrapper').hide();
+                $('#mwo-intro-button-text-wrapper').hide();
+                $('#mwo-intro-images-label').parent().parent().hide();
+                $('#mwo-intro-button-text-label').parent().parent().hide();
+            }
+        }
+
+        toggleIntroFields();
+
+        $('#mwo-enable-intro-checkbox').on('change', function() {
+            toggleIntroFields();
+        });
+    });
+    </script>
+    <?php
+}
+
+/**
+ * Intro images field callback
+ */
+function mwo_intro_images_callback() {
+    $options = get_option( 'mwo_options' );
+    $enable_intro = isset( $options['enable_intro'] ) ? $options['enable_intro'] : 0;
+    $intro_images = isset( $options['intro_images'] ) ? $options['intro_images'] : array();
+
+    $style = $enable_intro ? '' : 'style="display:none;"';
+    ?>
+    <div id="mwo-intro-images-wrapper" <?php echo $style; ?>>
+        <div class="mwo-intro-images-list">
+            <?php
+            if ( ! empty( $intro_images ) && is_array( $intro_images ) ) {
+                foreach ( $intro_images as $image_id ) {
+                    $image_url = wp_get_attachment_image_url( $image_id, 'medium' );
+                    if ( $image_url ) {
+                        ?>
+                        <div class="mwo-intro-image-item" style="display: inline-block; margin: 5px; position: relative;">
+                            <img src="<?php echo esc_url( $image_url ); ?>" style="max-width: 150px; height: auto; display: block;">
+                            <button type="button" class="button mwo-remove-intro-image" data-image-id="<?php echo esc_attr( $image_id ); ?>" style="position: absolute; top: 5px; right: 5px; padding: 2px 8px;">×</button>
+                            <input type="hidden" name="mwo_options[intro_images][]" value="<?php echo esc_attr( $image_id ); ?>">
+                        </div>
+                        <?php
+                    }
+                }
+            }
+            ?>
+        </div>
+        <button type="button" class="button mwo-add-intro-image-button" style="margin-top: 10px;">
+            <?php esc_html_e( 'Afbeelding toevoegen', 'mwo' ); ?>
+        </button>
+        <p class="description"><?php esc_html_e( 'Voeg één of meerdere afbeeldingen toe. Bij meerdere afbeeldingen worden ze als slideshow getoond.', 'mwo' ); ?></p>
+    </div>
+    <?php
+}
+
+/**
+ * Intro button text field callback
+ */
+function mwo_intro_button_text_callback() {
+    $options = get_option( 'mwo_options' );
+    $enable_intro = isset( $options['enable_intro'] ) ? $options['enable_intro'] : 0;
+    $intro_button_text = isset( $options['intro_button_text'] ) ? $options['intro_button_text'] : 'VIEW MY WORK';
+
+    $style = $enable_intro ? '' : 'style="display:none;"';
+    ?>
+    <div id="mwo-intro-button-text-wrapper" <?php echo $style; ?>>
+        <input type="text" name="mwo_options[intro_button_text]" value="<?php echo esc_attr( $intro_button_text ); ?>" class="regular-text">
+        <p class="description"><?php esc_html_e( 'De tekst die op de knop wordt weergegeven.', 'mwo' ); ?></p>
+    </div>
+    <?php
+}
+
+/**
+ * Redirect to intro screen if enabled
+ */
+function mwo_maybe_redirect_to_intro() {
+    // Don't redirect in admin, on login pages, or if skip parameter is set
+    if ( is_admin() || isset( $_GET['skip_intro'] ) || is_404() ) {
+        return;
+    }
+
+    // Check if we're already on the intro page
+    if ( is_page_template( 'template-intro.php' ) ) {
+        return;
+    }
+
+    // Check if intro screen is enabled
+    $options = get_option( 'mwo_options' );
+    $enable_intro = isset( $options['enable_intro'] ) && $options['enable_intro'];
+
+    if ( ! $enable_intro ) {
+        return;
+    }
+
+    // Check if intro page exists
+    $intro_page = get_pages( array(
+        'meta_key'   => '_wp_page_template',
+        'meta_value' => 'template-intro.php',
+        'number'     => 1,
+    ) );
+
+    if ( empty( $intro_page ) ) {
+        return;
+    }
+
+    // Start session if not already started
+    if ( ! isset( $_SESSION ) ) {
+        session_start();
+    }
+
+    // Force show intro with ?show_intro=1 parameter (for testing/preview)
+    if ( isset( $_GET['show_intro'] ) ) {
+        wp_redirect( get_permalink( $intro_page[0]->ID ) );
+        exit;
+    }
+
+    // Reset session with ?reset_intro=1 parameter (for testing)
+    if ( isset( $_GET['reset_intro'] ) ) {
+        unset( $_SESSION['mwo_intro_seen'] );
+        wp_redirect( home_url( '/' ) );
+        exit;
+    }
+
+    // Only redirect on homepage
+    if ( is_front_page() && ! isset( $_GET['skip_intro'] ) ) {
+        if ( ! isset( $_SESSION['mwo_intro_seen'] ) ) {
+            $_SESSION['mwo_intro_seen'] = true;
+            wp_redirect( get_permalink( $intro_page[0]->ID ) );
+            exit;
+        }
+    }
+}
+add_action( 'template_redirect', 'mwo_maybe_redirect_to_intro' );
+
+/**
  * Sanitize options
  */
 function mwo_sanitize_options( $input ) {
@@ -456,6 +641,21 @@ function mwo_sanitize_options( $input ) {
     $sanitized['disable_page_titles'] = isset( $input['disable_page_titles'] ) ? 1 : 0;
     $sanitized['disable_footer_credits'] = isset( $input['disable_footer_credits'] ) ? 1 : 0;
     $sanitized['lightbox_captions'] = isset( $input['lightbox_captions'] ) ? 1 : 0;
+    $sanitized['enable_intro'] = isset( $input['enable_intro'] ) ? 1 : 0;
+
+    // Intro images
+    if ( isset( $input['intro_images'] ) && is_array( $input['intro_images'] ) ) {
+        $sanitized['intro_images'] = array_map( 'absint', $input['intro_images'] );
+    } else {
+        $sanitized['intro_images'] = array();
+    }
+
+    // Intro button text
+    if ( isset( $input['intro_button_text'] ) ) {
+        $sanitized['intro_button_text'] = sanitize_text_field( $input['intro_button_text'] );
+    } else {
+        $sanitized['intro_button_text'] = 'VIEW MY WORK';
+    }
 
     // Social media URLs
     $sanitized = mwo_sanitize_social_urls( $input, $sanitized );

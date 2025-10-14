@@ -20,6 +20,7 @@ mwo/
 │   │   ├── gallery.css              # Galerie styling
 │   │   ├── glightbox.min.css        # Lightbox library
 │   │   ├── layout.css               # Basis layout
+│   │   ├── intro-screen.css         # Intro screen styling
 │   │   ├── lightbox-custom.css      # Custom lightbox styling
 │   │   ├── mobile-menu.css          # Mobiele menu styling
 │   │   └── sidebar.css              # Sidebar styling
@@ -30,6 +31,7 @@ mwo/
 ├── js/
 │   ├── admin.js                     # Admin panel JavaScript
 │   ├── glightbox.min.js             # Lightbox library
+│   ├── intro-screen.js              # Intro screen slideshow
 │   ├── lightbox-init.js             # Lightbox initialisatie
 │   ├── masonry-init.js              # Masonry grid initialisatie
 │   ├── mobile-menu.js               # Mobiel menu functionaliteit
@@ -40,6 +42,7 @@ mwo/
 ├── index.php          # Hoofd template (blog archief)
 ├── page.php           # Pagina template
 ├── single.php         # Enkel bericht template
+├── template-intro.php # Intro screen template
 └── style.css          # Hoofd stylesheet (theme header)
 ```
 
@@ -90,7 +93,26 @@ De theme gebruikt GLightbox voor professionele afbeeldingsweergave:
   - Links menu: onder navigatie in sidebar
   - Boven menu: in footer
 
-### 7. Theme Opties (Admin Panel)
+### 7. Intro Screen (Nieuw!)
+Een volledig scherm intro pagina die bezoekers zien voordat ze de website betreden:
+- Template: [template-intro.php](template-intro.php)
+- CSS: [assets/css/intro-screen.css](assets/css/intro-screen.css)
+- JavaScript: [js/intro-screen.js](js/intro-screen.js)
+- Ondersteunt enkele afbeelding of slideshow (meerdere afbeeldingen)
+- Volledig instelbaar via admin panel
+- Session-based: gebruikers zien het intro scherm slechts één keer per sessie
+- Smooth fade transitions tussen slides (5 seconden interval)
+
+**Hoe te gebruiken:**
+1. Maak een nieuwe pagina aan in WordPress
+2. Selecteer het "Intro Screen" template
+3. Ga naar Dashboard → Mijn Werk Online
+4. Vink "Intro scherm inschakelen" aan
+5. Upload één of meerdere achtergrondafbeeldingen
+6. Vul de knoptekst in (bijv. "VIEW MY WORK")
+7. Bezoekers worden nu automatisch naar het intro scherm geleid bij eerste bezoek
+
+### 8. Theme Opties (Admin Panel)
 Toegankelijk via Dashboard → Mijn Werk Online
 
 **Beschikbare opties:**
@@ -101,6 +123,9 @@ Toegankelijk via Dashboard → Mijn Werk Online
 - Paginakoppen uitschakelen
 - Footer credits uitschakelen
 - Lightbox bijschriften toggle
+- **Intro scherm inschakelen** (nieuw!)
+- **Intro achtergrondafbeeldingen** (nieuw! - toont alleen wanneer intro is ingeschakeld)
+- **Intro knoptekst** (nieuw! - toont alleen wanneer intro is ingeschakeld)
 - Social media links configuratie
 
 **Settings locatie:** `mwo_options` in wp_options tabel

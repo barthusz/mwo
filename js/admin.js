@@ -54,4 +54,46 @@ jQuery(document).ready(function($) {
         $('.mwo-upload-logo-button').text('Upload logo');
         $(this).remove();
     });
+
+    // Add intro image button
+    var introImageUploader;
+    $('.mwo-add-intro-image-button').on('click', function(e) {
+        e.preventDefault();
+
+        // Create the media uploader
+        introImageUploader = wp.media({
+            title: 'Kies achtergrondafbeeldingen',
+            button: {
+                text: 'Voeg toe'
+            },
+            multiple: true,
+            library: {
+                type: 'image'
+            }
+        });
+
+        // When images are selected, add them to the list
+        introImageUploader.on('select', function() {
+            var attachments = introImageUploader.state().get('selection').toJSON();
+
+            attachments.forEach(function(attachment) {
+                var imageHtml = '<div class="mwo-intro-image-item" style="display: inline-block; margin: 5px; position: relative;">' +
+                    '<img src="' + attachment.url + '" style="max-width: 150px; height: auto; display: block;">' +
+                    '<button type="button" class="button mwo-remove-intro-image" data-image-id="' + attachment.id + '" style="position: absolute; top: 5px; right: 5px; padding: 2px 8px;">×</button>' +
+                    '<input type="hidden" name="mwo_options[intro_images][]" value="' + attachment.id + '">' +
+                    '</div>';
+
+                $('.mwo-intro-images-list').append(imageHtml);
+            });
+        });
+
+        // Open the media uploader
+        introImageUploader.open();
+    });
+
+    // Remove intro image button
+    $(document).on('click', '.mwo-remove-intro-image', function(e) {
+        e.preventDefault();
+        $(this).closest('.mwo-intro-image-item').remove();
+    });
 });
