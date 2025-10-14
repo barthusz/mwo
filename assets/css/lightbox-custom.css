@@ -108,7 +108,8 @@
     max-width: 275px !important;
     width: 275px !important;
     background: #fff !important;
-    height: 100% !important;
+    min-height: 100% !important;
+    height: auto !important;
     flex-shrink: 0 !important;
     align-self: stretch !important;
     display: flex !important;
