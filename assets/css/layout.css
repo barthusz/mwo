@@ -62,7 +62,7 @@ body.menu-top.sticky-header .site-main-wrapper {
 }
 
 body.menu-top .site-header .header-inner {
-    max-width: 1400px;
+    max-width: 2000px;
     margin: 0 auto;
     display: flex;
     align-items: center;
@@ -75,7 +75,7 @@ body.menu-top .site-header .header-inner {
 }
 
 .site-content {
-    max-width: 1400px;
+    max-width: 2000px;
     margin: 0 auto;
     padding: 40px;
 }
