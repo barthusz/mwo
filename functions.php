@@ -56,6 +56,9 @@ function mwo_enqueue_assets() {
     // Gallery styles
     wp_enqueue_style( 'mwo-gallery', get_template_directory_uri() . '/assets/css/gallery.css', array(), '1.0.0' );
 
+    // Mobile menu styles
+    wp_enqueue_style( 'mwo-mobile-menu', get_template_directory_uri() . '/assets/css/mobile-menu.css', array(), '1.0.0' );
+
     // GLightbox styles
     wp_enqueue_style( 'glightbox', get_template_directory_uri() . '/assets/css/glightbox.min.css', array(), '3.2.0' );
     wp_enqueue_style( 'mwo-lightbox-custom', get_template_directory_uri() . '/assets/css/lightbox-custom.css', array( 'glightbox' ), '1.0.0' );
@@ -80,6 +83,9 @@ function mwo_enqueue_assets() {
 
     // Sticky header
     wp_enqueue_script( 'mwo-sticky-header', get_template_directory_uri() . '/js/sticky-header.js', array(), '1.0.0', true );
+
+    // Mobile menu
+    wp_enqueue_script( 'mwo-mobile-menu', get_template_directory_uri() . '/js/mobile-menu.js', array(), '1.0.0', true );
 
     // Pass theme options to JavaScript
     $options = get_option( 'mwo_options' );

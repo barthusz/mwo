@@ -32,6 +32,33 @@ if ( $menu_placement === 'top' && $sticky_header ) {
 <?php wp_body_open(); ?>
 
 <header class="site-header">
+    <div class="mobile-header">
+        <div class="site-branding-mobile">
+            <?php
+            // Logo for mobile
+            if ( $logo_id ) {
+                $logo_url = wp_get_attachment_image_url( $logo_id, 'full' );
+                if ( $logo_url ) {
+                    printf(
+                        '<a href="%s" class="custom-logo-link" rel="home"><img src="%s" alt="%s" class="custom-logo" style="max-width: %dpx; height: auto;"></a>',
+                        esc_url( home_url( '/' ) ),
+                        esc_url( $logo_url ),
+                        esc_attr( get_bloginfo( 'name' ) ),
+                        absint( $logo_width )
+                    );
+                }
+            }
+            ?>
+        </div>
+        <button class="mobile-menu-toggle" aria-label="Menu" aria-expanded="false">
+            <span class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </span>
+        </button>
+    </div>
+
     <div class="site-branding">
         <?php
         // Logo
