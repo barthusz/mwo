@@ -5,3 +5,54 @@
 
 /* Add your custom CSS here */
 
+/**
+ * Content Protection Styles
+ * Only active when content protection is enabled via settings
+ */
+body.content-protection-enabled .wp-block-gallery img,
+body.content-protection-enabled .wp-block-image img,
+body.content-protection-enabled .site-content img,
+body.content-protection-enabled .glightbox-container img,
+body.content-protection-enabled .gslide-image img {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none; /* iOS long-press menu */
+    pointer-events: none; /* Prevents dragging */
+}
+
+/* Keep links on images functional (for lightbox) */
+body.content-protection-enabled .wp-block-gallery a,
+body.content-protection-enabled .wp-block-image a,
+body.content-protection-enabled .site-content a {
+    pointer-events: auto;
+}
+
+/* Prevent text selection on figures */
+body.content-protection-enabled .wp-block-gallery figure,
+body.content-protection-enabled .wp-block-image figure {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Visual feedback: subtle cursor change */
+body.content-protection-enabled .wp-block-gallery img,
+body.content-protection-enabled .wp-block-image img,
+body.content-protection-enabled .site-content img,
+body.content-protection-enabled .glightbox-container img,
+body.content-protection-enabled .gslide-image img {
+    cursor: default;
+}
+
+/* Lightbox specific protection */
+body.content-protection-enabled .glightbox-container,
+body.content-protection-enabled .gslide-inner-content {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+

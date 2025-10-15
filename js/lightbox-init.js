@@ -49,4 +49,59 @@ document.addEventListener('DOMContentLoaded', function() {
         descPosition: 'right',
         zoomable: false
     });
+
+    // Apply content protection to lightbox if enabled
+    if (document.body.classList.contains('content-protection-enabled')) {
+        lightbox.on('open', function() {
+            // Wait a moment for the lightbox to fully render
+            setTimeout(function() {
+                const lightboxContainer = document.querySelector('.glightbox-container');
+                if (lightboxContainer) {
+                    // Prevent right-click on entire lightbox container
+                    lightboxContainer.addEventListener('contextmenu', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return false;
+                    }, true);
+
+                    // Prevent drag on images
+                    const lightboxImages = lightboxContainer.querySelectorAll('img');
+                    lightboxImages.forEach(function(img) {
+                        img.addEventListener('contextmenu', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            return false;
+                        }, true);
+                        img.addEventListener('dragstart', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            return false;
+                        }, true);
+                    });
+                }
+            }, 100);
+        });
+
+        // Re-apply protection on slide change
+        lightbox.on('slide_changed', function() {
+            setTimeout(function() {
+                const lightboxContainer = document.querySelector('.glightbox-container');
+                if (lightboxContainer) {
+                    const lightboxImages = lightboxContainer.querySelectorAll('img');
+                    lightboxImages.forEach(function(img) {
+                        img.addEventListener('contextmenu', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            return false;
+                        }, true);
+                        img.addEventListener('dragstart', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            return false;
+                        }, true);
+                    });
+                }
+            }, 100);
+        });
+    }
 });

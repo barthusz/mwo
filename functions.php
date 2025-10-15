@@ -80,6 +80,7 @@ function mwo_enqueue_assets() {
     $options = get_option( 'mwo_options' );
     $content_container_width = isset( $options['content_container_width'] ) ? $options['content_container_width'] : 1170;
     $enable_masonry = isset( $options['enable_masonry'] ) ? $options['enable_masonry'] : 1;
+    $content_protection = isset( $options['content_protection'] ) ? $options['content_protection'] : 0;
 
     // Font Awesome (local)
     wp_enqueue_style( 'font-awesome', get_template_directory_uri() . '/assets/css/all.min.css', array(), '6.5.1' );
@@ -119,13 +120,18 @@ function mwo_enqueue_assets() {
     wp_enqueue_script( 'glightbox', get_template_directory_uri() . '/js/glightbox.min.js', array(), '3.2.0', true );
 
     // Lightbox initialization
-    wp_enqueue_script( 'mwo-lightbox-init', get_template_directory_uri() . '/js/lightbox-init.js', array( 'glightbox' ), '1.0.0', true );
+    wp_enqueue_script( 'mwo-lightbox-init', get_template_directory_uri() . '/js/lightbox-init.js', array( 'glightbox' ), '1.1.0', true );
 
     // Sticky header
     wp_enqueue_script( 'mwo-sticky-header', get_template_directory_uri() . '/js/sticky-header.js', array(), '1.0.0', true );
 
     // Mobile menu
     wp_enqueue_script( 'mwo-mobile-menu', get_template_directory_uri() . '/js/mobile-menu.js', array(), '1.0.0', true );
+
+    // Content protection (conditionally loaded)
+    if ( $content_protection ) {
+        wp_enqueue_script( 'mwo-content-protection', get_template_directory_uri() . '/js/content-protection.js', array(), '1.0.0', true );
+    }
 
     // Pass theme options to JavaScript
     wp_localize_script( 'mwo-lightbox-init', 'mwoOptions', array(
@@ -365,6 +371,14 @@ function mwo_register_settings() {
         'mwo_enable_masonry',
         __( 'Masonry layout voor galerijen', 'mwo' ),
         'mwo_enable_masonry_callback',
+        'mwo-settings',
+        'mwo_general_section'
+    );
+
+    add_settings_field(
+        'mwo_content_protection',
+        __( 'Content protectie', 'mwo' ),
+        'mwo_content_protection_callback',
         'mwo-settings',
         'mwo_general_section'
     );
@@ -690,6 +704,21 @@ function mwo_enable_masonry_callback() {
 }
 
 /**
+ * Content protection field callback
+ */
+function mwo_content_protection_callback() {
+    $options = get_option( 'mwo_options' );
+    $content_protection = isset( $options['content_protection'] ) ? $options['content_protection'] : 0;
+    ?>
+    <label>
+        <input type="checkbox" name="mwo_options[content_protection]" value="1" <?php checked( $content_protection, 1 ); ?>>
+        <?php esc_html_e( 'Content protectie inschakelen', 'mwo' ); ?>
+    </label>
+    <p class="description"><?php esc_html_e( 'Bescherm foto\'s tegen downloaden via rechtermuisklik, slepen en kopiëren. Let op: dit biedt geen 100% bescherming tegen technisch bekwame gebruikers.', 'mwo' ); ?></p>
+    <?php
+}
+
+/**
  * Redirect to intro screen if enabled
  */
 function mwo_maybe_redirect_to_intro() {
@@ -809,6 +838,7 @@ function mwo_sanitize_options( $input ) {
     $sanitized['lightbox_captions'] = isset( $input['lightbox_captions'] ) ? 1 : 0;
     $sanitized['enable_intro'] = isset( $input['enable_intro'] ) ? 1 : 0;
     $sanitized['enable_masonry'] = isset( $input['enable_masonry'] ) ? 1 : 0;
+    $sanitized['content_protection'] = isset( $input['content_protection'] ) ? 1 : 0;
 
     // Intro images
     if ( isset( $input['intro_images'] ) && is_array( $input['intro_images'] ) ) {

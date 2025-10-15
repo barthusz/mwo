@@ -14,6 +14,7 @@ $show_tagline = isset( $options['show_tagline'] ) && $options['show_tagline'] ? 
 $logo_id = isset( $options['logo'] ) ? $options['logo'] : '';
 $logo_width = isset( $options['logo_width'] ) ? $options['logo_width'] : 200;
 $enable_intro = isset( $options['enable_intro'] ) && $options['enable_intro'] ? true : false;
+$content_protection = isset( $options['content_protection'] ) && $options['content_protection'] ? true : false;
 
 // Determine logo link URL
 $logo_link_url = home_url( '/' );
@@ -33,6 +34,9 @@ $body_classes = array();
 $body_classes[] = 'menu-' . $menu_placement;
 if ( $menu_placement === 'top' && $sticky_header ) {
     $body_classes[] = 'sticky-header';
+}
+if ( $content_protection ) {
+    $body_classes[] = 'content-protection-enabled';
 }
 ?>
 <!DOCTYPE html>
