@@ -130,9 +130,21 @@ function mwo_enqueue_assets() {
     ) );
 
     // Add inline CSS for dynamic settings
+    $menu_accent_color = isset( $options['menu_accent_color'] ) ? $options['menu_accent_color'] : '#c34143';
+
     $custom_css = "
         .content-container {
             max-width: {$content_container_width}px;
+        }
+        .site-navigation a:hover,
+        .site-navigation .current-menu-item > a {
+            color: {$menu_accent_color};
+        }
+        .social-media-links a:hover {
+            color: {$menu_accent_color};
+        }
+        .site-footer .social-media-links a:hover {
+            color: {$menu_accent_color};
         }
     ";
 
@@ -151,8 +163,12 @@ function mwo_enqueue_admin_scripts( $hook ) {
     // Font Awesome for admin (local)
     wp_enqueue_style( 'font-awesome', get_template_directory_uri() . '/assets/css/all.min.css', array(), '6.5.1' );
 
+    // WordPress color picker
+    wp_enqueue_style( 'wp-color-picker' );
+    wp_enqueue_script( 'wp-color-picker' );
+
     wp_enqueue_media();
-    wp_enqueue_script( 'mwo-admin', get_template_directory_uri() . '/js/admin.js', array( 'jquery' ), '1.0.1', true );
+    wp_enqueue_script( 'mwo-admin', get_template_directory_uri() . '/js/admin.js', array( 'jquery', 'wp-color-picker' ), '1.0.2', true );
 }
 add_action( 'admin_enqueue_scripts', 'mwo_enqueue_admin_scripts' );
 
@@ -245,6 +261,14 @@ function mwo_register_settings() {
         'mwo_logo_width',
         __( 'Logo breedte', 'mwo' ),
         'mwo_logo_width_callback',
+        'mwo-settings',
+        'mwo_general_section'
+    );
+
+    add_settings_field(
+        'mwo_menu_accent_color',
+        __( 'Menu accent kleur', 'mwo' ),
+        'mwo_menu_accent_color_callback',
         'mwo-settings',
         'mwo_general_section'
     );
@@ -432,6 +456,18 @@ function mwo_logo_width_callback() {
     <input type="number" name="mwo_options[logo_width]" value="<?php echo esc_attr( $logo_width ); ?>" min="50" max="800" step="1">
     <span>px</span>
     <p class="description"><?php esc_html_e( 'Maximale breedte van het logo (hoogte schaalt automatisch mee).', 'mwo' ); ?></p>
+    <?php
+}
+
+/**
+ * Menu accent color field callback
+ */
+function mwo_menu_accent_color_callback() {
+    $options = get_option( 'mwo_options' );
+    $menu_accent_color = isset( $options['menu_accent_color'] ) ? $options['menu_accent_color'] : '#c34143';
+    ?>
+    <input type="text" name="mwo_options[menu_accent_color]" value="<?php echo esc_attr( $menu_accent_color ); ?>" class="mwo-color-picker">
+    <p class="description"><?php esc_html_e( 'Kleur voor actieve menu items, hover effecten en social media iconen.', 'mwo' ); ?></p>
     <?php
 }
 
@@ -714,6 +750,16 @@ function mwo_sanitize_options( $input ) {
         } elseif ( $sanitized['logo_width'] > 800 ) {
             $sanitized['logo_width'] = 800;
         }
+    }
+
+    // Menu accent color
+    if ( isset( $input['menu_accent_color'] ) ) {
+        $sanitized['menu_accent_color'] = sanitize_hex_color( $input['menu_accent_color'] );
+        if ( empty( $sanitized['menu_accent_color'] ) ) {
+            $sanitized['menu_accent_color'] = '#c34143';
+        }
+    } else {
+        $sanitized['menu_accent_color'] = '#c34143';
     }
 
     // Checkboxes

@@ -61,9 +61,10 @@
     transition: color 0.3s;
 }
 
+/* Hover and active colors are set dynamically via inline CSS in functions.php */
 .site-navigation a:hover,
 .site-navigation .current-menu-item > a {
-    color: #c8503c;
+    /* Color is set dynamically */
 }
 
 /* Social Media Icons */
@@ -87,8 +88,9 @@
     transition: color 0.3s;
 }
 
+/* Hover color is set dynamically via inline CSS in functions.php */
 .social-media-links a:hover {
-    opacity: 0.7;
+    /* Color is set dynamically */
 }
 
 .social-media-links i {

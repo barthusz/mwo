@@ -1,4 +1,7 @@
 jQuery(document).ready(function($) {
+    // Initialize color picker
+    $('.mwo-color-picker').wpColorPicker();
+
     var mediaUploader;
 
     // Upload logo button

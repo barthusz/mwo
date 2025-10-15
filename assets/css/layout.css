@@ -164,11 +164,12 @@ body.menu-top .content-container-template .content-container * {
     height: 40px;
     color: #333;
     text-decoration: none;
-    transition: opacity 0.3s;
+    transition: color 0.3s;
 }
 
+/* Hover color is set dynamically via inline CSS in functions.php */
 .site-footer .social-media-links a:hover {
-    opacity: 0.7;
+    /* Color is set dynamically */
 }
 
 .site-footer .social-media-links i {
