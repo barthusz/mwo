@@ -16,6 +16,87 @@ require_once get_template_directory() . '/inc/social-media.php';
 require_once get_template_directory() . '/inc/gallery-captions.php';
 
 /**
+ * Automatically resize large images on upload
+ * This reduces file size and improves page load times
+ * Uses wp_handle_upload filter which runs after the file is moved to uploads directory
+ */
+function mwo_auto_resize_uploaded_images( $upload ) {
+    $options = get_option( 'mwo_options' );
+    $auto_resize = isset( $options['auto_resize_images'] ) && $options['auto_resize_images'];
+
+    // Only proceed if auto-resize is enabled
+    if ( ! $auto_resize ) {
+        return $upload;
+    }
+
+    $max_size = isset( $options['max_image_size'] ) ? absint( $options['max_image_size'] ) : 2400;
+
+    // Check if upload was successful and is an image
+    if ( ! isset( $upload['file'] ) || ! isset( $upload['type'] ) ) {
+        return $upload;
+    }
+
+    if ( strpos( $upload['type'], 'image' ) === false ) {
+        return $upload;
+    }
+
+    $file_path = $upload['file'];
+
+    // Get image dimensions
+    $image_size = @getimagesize( $file_path );
+    if ( ! $image_size ) {
+        return $upload;
+    }
+
+    list( $width, $height ) = $image_size;
+
+    // Check if resize is needed (if either dimension exceeds max)
+    if ( $width <= $max_size && $height <= $max_size ) {
+        return $upload;
+    }
+
+    // Load WordPress image editor
+    require_once( ABSPATH . 'wp-admin/includes/image.php' );
+    $image_editor = wp_get_image_editor( $file_path );
+
+    if ( is_wp_error( $image_editor ) ) {
+        return $upload;
+    }
+
+    // Calculate new dimensions (maintain aspect ratio)
+    if ( $width > $height ) {
+        $new_width = $max_size;
+        $new_height = intval( $height * ( $max_size / $width ) );
+    } else {
+        $new_height = $max_size;
+        $new_width = intval( $width * ( $max_size / $height ) );
+    }
+
+    // Resize the image
+    $resize_result = $image_editor->resize( $new_width, $new_height, false );
+
+    if ( is_wp_error( $resize_result ) ) {
+        return $upload;
+    }
+
+    // Save the resized image (overwrite original)
+    $saved = $image_editor->save( $file_path );
+
+    if ( is_wp_error( $saved ) ) {
+        return $upload;
+    }
+
+    // Update file size in upload array
+    $upload['file'] = $saved['path'];
+    if ( file_exists( $saved['path'] ) ) {
+        $upload['size'] = filesize( $saved['path'] );
+    }
+
+    return $upload;
+}
+add_filter( 'wp_handle_upload', 'mwo_auto_resize_uploaded_images' );
+
+/**
  * Ensure gallery images have width and height attributes for proper space reservation
  * This prevents layout shift and helps Masonry calculate correct positions
  * Only needed when Masonry is enabled
@@ -382,6 +463,22 @@ function mwo_register_settings() {
         'mwo-settings',
         'mwo_general_section'
     );
+
+    add_settings_field(
+        'mwo_auto_resize_images',
+        '<span id="mwo-auto-resize-label">' . __( 'Automatisch foto\'s verkleinen', 'mwo' ) . '</span>',
+        'mwo_auto_resize_images_callback',
+        'mwo-settings',
+        'mwo_general_section'
+    );
+
+    add_settings_field(
+        'mwo_max_image_size',
+        '<span id="mwo-max-image-size-label">' . __( 'Maximale foto grootte', 'mwo' ) . '</span>',
+        'mwo_max_image_size_callback',
+        'mwo-settings',
+        'mwo_general_section'
+    );
 }
 add_action( 'admin_init', 'mwo_register_settings' );
 
@@ -719,6 +816,59 @@ function mwo_content_protection_callback() {
 }
 
 /**
+ * Auto resize images field callback
+ */
+function mwo_auto_resize_images_callback() {
+    $options = get_option( 'mwo_options' );
+    $auto_resize = isset( $options['auto_resize_images'] ) ? $options['auto_resize_images'] : 0;
+    ?>
+    <label>
+        <input type="checkbox" name="mwo_options[auto_resize_images]" value="1" <?php checked( $auto_resize, 1 ); ?> id="mwo-auto-resize-checkbox">
+        <?php esc_html_e( 'Verkleinen van foto\'s bij upload inschakelen', 'mwo' ); ?>
+    </label>
+    <p class="description"><?php esc_html_e( 'Grote foto\'s worden automatisch verkleind bij upload. Dit bespaart ruimte en verbetert de laadsnelheid.', 'mwo' ); ?></p>
+    <script>
+    jQuery(document).ready(function($) {
+        function toggleMaxImageSize() {
+            var isEnabled = $('#mwo-auto-resize-checkbox').is(':checked');
+            if (isEnabled) {
+                $('#mwo-max-image-size-wrapper').show();
+                $('#mwo-max-image-size-label').parent().parent().show();
+            } else {
+                $('#mwo-max-image-size-wrapper').hide();
+                $('#mwo-max-image-size-label').parent().parent().hide();
+            }
+        }
+
+        toggleMaxImageSize();
+
+        $('#mwo-auto-resize-checkbox').on('change', function() {
+            toggleMaxImageSize();
+        });
+    });
+    </script>
+    <?php
+}
+
+/**
+ * Max image size field callback
+ */
+function mwo_max_image_size_callback() {
+    $options = get_option( 'mwo_options' );
+    $auto_resize = isset( $options['auto_resize_images'] ) ? $options['auto_resize_images'] : 0;
+    $max_image_size = isset( $options['max_image_size'] ) ? $options['max_image_size'] : 2400;
+
+    $style = $auto_resize ? '' : 'style="display:none;"';
+    ?>
+    <div id="mwo-max-image-size-wrapper" <?php echo $style; ?>>
+        <input type="number" name="mwo_options[max_image_size]" value="<?php echo esc_attr( $max_image_size ); ?>" min="800" max="5000" step="100">
+        <span>px</span>
+        <p class="description"><?php esc_html_e( 'Maximale breedte/hoogte voor geüploade foto\'s. Foto\'s groter dan deze waarde worden automatisch verkleind (langste zijde).', 'mwo' ); ?></p>
+    </div>
+    <?php
+}
+
+/**
  * Redirect to intro screen if enabled
  */
 function mwo_maybe_redirect_to_intro() {
@@ -839,6 +989,19 @@ function mwo_sanitize_options( $input ) {
     $sanitized['enable_intro'] = isset( $input['enable_intro'] ) ? 1 : 0;
     $sanitized['enable_masonry'] = isset( $input['enable_masonry'] ) ? 1 : 0;
     $sanitized['content_protection'] = isset( $input['content_protection'] ) ? 1 : 0;
+    $sanitized['auto_resize_images'] = isset( $input['auto_resize_images'] ) ? 1 : 0;
+
+    // Max image size
+    if ( isset( $input['max_image_size'] ) ) {
+        $sanitized['max_image_size'] = absint( $input['max_image_size'] );
+        if ( $sanitized['max_image_size'] < 800 ) {
+            $sanitized['max_image_size'] = 800;
+        } elseif ( $sanitized['max_image_size'] > 5000 ) {
+            $sanitized['max_image_size'] = 5000;
+        }
+    } else {
+        $sanitized['max_image_size'] = 2400;
+    }
 
     // Intro images
     if ( isset( $input['intro_images'] ) && is_array( $input['intro_images'] ) ) {
