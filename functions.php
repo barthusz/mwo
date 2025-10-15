@@ -60,6 +60,34 @@ function mwo_disable_big_image_threshold() {
 add_filter( 'big_image_size_threshold', 'mwo_disable_big_image_threshold' );
 
 /**
+ * Optimize srcset for galleries - exclude full size original
+ * This improves performance by only serving appropriate thumbnail sizes
+ * Full size is still available for lightbox and direct viewing
+ */
+function mwo_optimize_gallery_srcset( $sources, $size_array, $image_src, $image_meta, $attachment_id ) {
+    $options = get_option( 'mwo_options' );
+    $optimize_srcset = isset( $options['optimize_srcset'] ) ? $options['optimize_srcset'] : 1;
+
+    // Only optimize if setting is enabled (default: on)
+    if ( ! $optimize_srcset ) {
+        return $sources;
+    }
+
+    // Get the max size we want in srcset (large = 1024px by default)
+    $max_srcset_width = get_option( 'large_size_w', 1024 );
+
+    // Remove any sources larger than our max width
+    foreach ( $sources as $width => $source ) {
+        if ( $width > $max_srcset_width ) {
+            unset( $sources[ $width ] );
+        }
+    }
+
+    return $sources;
+}
+add_filter( 'wp_calculate_image_srcset', 'mwo_optimize_gallery_srcset', 10, 5 );
+
+/**
  * Automatically resize large images on upload
  * This reduces file size and improves page load times
  * Uses wp_handle_upload filter which runs after the file is moved to uploads directory
@@ -531,6 +559,14 @@ function mwo_register_settings() {
         'mwo-settings',
         'mwo_general_section'
     );
+
+    add_settings_field(
+        'mwo_optimize_srcset',
+        __( 'Gallery performance optimalisatie', 'mwo' ),
+        'mwo_optimize_srcset_callback',
+        'mwo-settings',
+        'mwo_general_section'
+    );
 }
 add_action( 'admin_init', 'mwo_register_settings' );
 
@@ -941,6 +977,28 @@ function mwo_disable_extra_sizes_callback() {
 }
 
 /**
+ * Optimize srcset field callback
+ */
+function mwo_optimize_srcset_callback() {
+    $options = get_option( 'mwo_options' );
+    $optimize_srcset = isset( $options['optimize_srcset'] ) ? $options['optimize_srcset'] : 1;
+    ?>
+    <label>
+        <input type="checkbox" name="mwo_options[optimize_srcset]" value="1" <?php checked( $optimize_srcset, 1 ); ?>>
+        <?php esc_html_e( 'Beperk gallery afbeeldingen tot max 1024px', 'mwo' ); ?>
+    </label>
+    <p class="description">
+        <?php esc_html_e( 'Voorkomt dat het volledige origineel (2400px) in galleries wordt geladen. Galleries gebruiken dan alleen thumbnail, medium en large formaten.', 'mwo' ); ?>
+        <br>
+        <strong><?php esc_html_e( 'Aanbevolen: Aangevinkt laten', 'mwo' ); ?></strong>
+        <?php esc_html_e( '(Lightbox toont nog steeds het origineel in volle kwaliteit)', 'mwo' ); ?>
+        <br>
+        <em style="color: #666;"><?php esc_html_e( 'Verbetert laadsnelheid aanzienlijk bij galleries met veel foto\'s.', 'mwo' ); ?></em>
+    </p>
+    <?php
+}
+
+/**
  * Redirect to intro screen if enabled
  */
 function mwo_maybe_redirect_to_intro() {
@@ -1063,6 +1121,7 @@ function mwo_sanitize_options( $input ) {
     $sanitized['content_protection'] = isset( $input['content_protection'] ) ? 1 : 0;
     $sanitized['auto_resize_images'] = isset( $input['auto_resize_images'] ) ? 1 : 0;
     $sanitized['disable_extra_sizes'] = isset( $input['disable_extra_sizes'] ) ? 1 : 0;
+    $sanitized['optimize_srcset'] = isset( $input['optimize_srcset'] ) ? 1 : 0;
 
     // Max image size
     if ( isset( $input['max_image_size'] ) ) {
