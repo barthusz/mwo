@@ -102,6 +102,9 @@ function mwo_enqueue_assets() {
     wp_enqueue_style( 'glightbox', get_template_directory_uri() . '/assets/css/glightbox.min.css', array(), '3.2.0' );
     wp_enqueue_style( 'mwo-lightbox-custom', get_template_directory_uri() . '/assets/css/lightbox-custom.css', array( 'glightbox' ), '1.0.0' );
 
+    // Other custom styles
+    wp_enqueue_style( 'mwo-other', get_template_directory_uri() . '/assets/css/other.css', array(), '1.0.0' );
+
     // Main theme styles
     wp_enqueue_style( 'mwo-style', get_stylesheet_uri(), array( 'font-awesome', 'mwo-layout', 'mwo-sidebar', 'mwo-gallery', 'glightbox' ), '1.0.0' );
 
@@ -131,6 +134,7 @@ function mwo_enqueue_assets() {
 
     // Add inline CSS for dynamic settings
     $menu_accent_color = isset( $options['menu_accent_color'] ) ? $options['menu_accent_color'] : '#c34143';
+    $link_color = isset( $options['link_color'] ) ? $options['link_color'] : '#c34143';
 
     $custom_css = "
         .content-container {
@@ -145,6 +149,10 @@ function mwo_enqueue_assets() {
         }
         .site-footer .social-media-links a:hover {
             color: {$menu_accent_color};
+        }
+        .site-content a,
+        .entry-content a {
+            color: {$link_color};
         }
     ";
 
@@ -269,6 +277,14 @@ function mwo_register_settings() {
         'mwo_menu_accent_color',
         __( 'Menu accent kleur', 'mwo' ),
         'mwo_menu_accent_color_callback',
+        'mwo-settings',
+        'mwo_general_section'
+    );
+
+    add_settings_field(
+        'mwo_link_color',
+        __( 'Link kleur', 'mwo' ),
+        'mwo_link_color_callback',
         'mwo-settings',
         'mwo_general_section'
     );
@@ -468,6 +484,18 @@ function mwo_menu_accent_color_callback() {
     ?>
     <input type="text" name="mwo_options[menu_accent_color]" value="<?php echo esc_attr( $menu_accent_color ); ?>" class="mwo-color-picker">
     <p class="description"><?php esc_html_e( 'Kleur voor actieve menu items, hover effecten en social media iconen.', 'mwo' ); ?></p>
+    <?php
+}
+
+/**
+ * Link color field callback
+ */
+function mwo_link_color_callback() {
+    $options = get_option( 'mwo_options' );
+    $link_color = isset( $options['link_color'] ) ? $options['link_color'] : '#c34143';
+    ?>
+    <input type="text" name="mwo_options[link_color]" value="<?php echo esc_attr( $link_color ); ?>" class="mwo-color-picker">
+    <p class="description"><?php esc_html_e( 'Kleur voor links in de content.', 'mwo' ); ?></p>
     <?php
 }
 
@@ -760,6 +788,16 @@ function mwo_sanitize_options( $input ) {
         }
     } else {
         $sanitized['menu_accent_color'] = '#c34143';
+    }
+
+    // Link color
+    if ( isset( $input['link_color'] ) ) {
+        $sanitized['link_color'] = sanitize_hex_color( $input['link_color'] );
+        if ( empty( $sanitized['link_color'] ) ) {
+            $sanitized['link_color'] = '#c34143';
+        }
+    } else {
+        $sanitized['link_color'] = '#c34143';
     }
 
     // Checkboxes
