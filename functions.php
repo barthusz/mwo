@@ -16,6 +16,50 @@ require_once get_template_directory() . '/inc/social-media.php';
 require_once get_template_directory() . '/inc/gallery-captions.php';
 
 /**
+ * Disable unnecessary WordPress image sizes
+ * This prevents WordPress from generating extra image sizes that aren't needed
+ * Only runs if the option is enabled in settings
+ */
+function mwo_disable_extra_image_sizes( $sizes ) {
+    $options = get_option( 'mwo_options' );
+    $disable_extra_sizes = isset( $options['disable_extra_sizes'] ) ? $options['disable_extra_sizes'] : 1;
+
+    // Only disable if setting is enabled (default: on)
+    if ( ! $disable_extra_sizes ) {
+        return $sizes;
+    }
+
+    // Remove medium_large (768px)
+    unset( $sizes['medium_large'] );
+
+    // Remove 2x sizes for large (1536x1536 and 2048x2048)
+    unset( $sizes['1536x1536'] );
+    unset( $sizes['2048x2048'] );
+
+    return $sizes;
+}
+add_filter( 'intermediate_image_sizes_advanced', 'mwo_disable_extra_image_sizes' );
+
+/**
+ * Disable big image threshold
+ * WordPress 5.3+ automatically scales down images larger than 2560px
+ * We handle this ourselves with the auto-resize feature
+ * Only runs if extra sizes are disabled
+ */
+function mwo_disable_big_image_threshold() {
+    $options = get_option( 'mwo_options' );
+    $disable_extra_sizes = isset( $options['disable_extra_sizes'] ) ? $options['disable_extra_sizes'] : 1;
+
+    // Only disable threshold if extra sizes are disabled
+    if ( ! $disable_extra_sizes ) {
+        return 2560; // Keep WordPress default
+    }
+
+    return false; // Disable the 2560px threshold completely
+}
+add_filter( 'big_image_size_threshold', 'mwo_disable_big_image_threshold' );
+
+/**
  * Automatically resize large images on upload
  * This reduces file size and improves page load times
  * Uses wp_handle_upload filter which runs after the file is moved to uploads directory
@@ -479,6 +523,14 @@ function mwo_register_settings() {
         'mwo-settings',
         'mwo_general_section'
     );
+
+    add_settings_field(
+        'mwo_disable_extra_sizes',
+        __( 'Extra afbeeldingsformaten', 'mwo' ),
+        'mwo_disable_extra_sizes_callback',
+        'mwo-settings',
+        'mwo_general_section'
+    );
 }
 add_action( 'admin_init', 'mwo_register_settings' );
 
@@ -869,6 +921,26 @@ function mwo_max_image_size_callback() {
 }
 
 /**
+ * Disable extra image sizes field callback
+ */
+function mwo_disable_extra_sizes_callback() {
+    $options = get_option( 'mwo_options' );
+    $disable_extra_sizes = isset( $options['disable_extra_sizes'] ) ? $options['disable_extra_sizes'] : 1;
+    ?>
+    <label>
+        <input type="checkbox" name="mwo_options[disable_extra_sizes]" value="1" <?php checked( $disable_extra_sizes, 1 ); ?>>
+        <?php esc_html_e( 'Schakel onnodige WordPress afbeeldingsformaten uit', 'mwo' ); ?>
+    </label>
+    <p class="description">
+        <?php esc_html_e( 'WordPress genereert standaard extra formaten (medium_large 768px, 1536x1536, 2048x2048). Aanvinken schakelt deze uit en bespaart schijfruimte.', 'mwo' ); ?>
+        <br>
+        <strong><?php esc_html_e( 'Aanbevolen: Aangevinkt laten', 'mwo' ); ?></strong>
+        <?php esc_html_e( '(je Media instellingen blijven werken: thumbnail, medium, large)', 'mwo' ); ?>
+    </p>
+    <?php
+}
+
+/**
  * Redirect to intro screen if enabled
  */
 function mwo_maybe_redirect_to_intro() {
@@ -990,6 +1062,7 @@ function mwo_sanitize_options( $input ) {
     $sanitized['enable_masonry'] = isset( $input['enable_masonry'] ) ? 1 : 0;
     $sanitized['content_protection'] = isset( $input['content_protection'] ) ? 1 : 0;
     $sanitized['auto_resize_images'] = isset( $input['auto_resize_images'] ) ? 1 : 0;
+    $sanitized['disable_extra_sizes'] = isset( $input['disable_extra_sizes'] ) ? 1 : 0;
 
     // Max image size
     if ( isset( $input['max_image_size'] ) ) {
