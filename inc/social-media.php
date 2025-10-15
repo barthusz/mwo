@@ -34,10 +34,10 @@ function mwo_get_social_platforms() {
             'icon'  => 'fa-brands fa-linkedin',
             'color' => '#0A66C2',
         ),
-        '500px' => array(
-            'label' => __( '500px', 'mwo' ),
-            'icon'  => 'fa-brands fa-500px',
-            'color' => '#0099E5',
+        'youtube' => array(
+            'label' => __( 'YouTube', 'mwo' ),
+            'icon'  => 'fa-brands fa-youtube',
+            'color' => '#FF0000',
         ),
     );
 }
