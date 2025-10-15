@@ -18,8 +18,17 @@ require_once get_template_directory() . '/inc/gallery-captions.php';
 /**
  * Ensure gallery images have width and height attributes for proper space reservation
  * This prevents layout shift and helps Masonry calculate correct positions
+ * Only needed when Masonry is enabled
  */
 function mwo_add_dimensions_to_gallery_images( $attr, $attachment, $size ) {
+    $options = get_option( 'mwo_options' );
+    $enable_masonry = isset( $options['enable_masonry'] ) ? $options['enable_masonry'] : 1;
+
+    // Only add dimensions when Masonry is enabled
+    if ( ! $enable_masonry ) {
+        return $attr;
+    }
+
     if ( ! isset( $attr['width'] ) || ! isset( $attr['height'] ) ) {
         $image = wp_get_attachment_image_src( $attachment->ID, $size );
         if ( $image ) {
@@ -70,6 +79,7 @@ function mwo_enqueue_assets() {
     // Get theme options for dynamic CSS
     $options = get_option( 'mwo_options' );
     $content_container_width = isset( $options['content_container_width'] ) ? $options['content_container_width'] : 1170;
+    $enable_masonry = isset( $options['enable_masonry'] ) ? $options['enable_masonry'] : 1;
 
     // Font Awesome (local)
     wp_enqueue_style( 'font-awesome', get_template_directory_uri() . '/assets/css/all.min.css', array(), '6.5.1' );
@@ -80,8 +90,10 @@ function mwo_enqueue_assets() {
     // Sidebar styles
     wp_enqueue_style( 'mwo-sidebar', get_template_directory_uri() . '/assets/css/sidebar.css', array(), '1.0.0' );
 
-    // Gallery styles
-    wp_enqueue_style( 'mwo-gallery', get_template_directory_uri() . '/assets/css/gallery.css', array(), '2.1.0' );
+    // Gallery styles (only load when masonry is enabled)
+    if ( $enable_masonry ) {
+        wp_enqueue_style( 'mwo-gallery', get_template_directory_uri() . '/assets/css/gallery.css', array(), '2.1.0' );
+    }
 
     // Mobile menu styles
     wp_enqueue_style( 'mwo-mobile-menu', get_template_directory_uri() . '/assets/css/mobile-menu.css', array(), '1.0.0' );
@@ -93,14 +105,12 @@ function mwo_enqueue_assets() {
     // Main theme styles
     wp_enqueue_style( 'mwo-style', get_stylesheet_uri(), array( 'font-awesome', 'mwo-layout', 'mwo-sidebar', 'mwo-gallery', 'glightbox' ), '1.0.0' );
 
-    // Masonry (WordPress bundled)
-    wp_enqueue_script( 'masonry' );
-
-    // imagesLoaded (WordPress bundled)
-    wp_enqueue_script( 'imagesloaded' );
-
-    // Masonry initialization (uses window.load for better cached image handling)
-    wp_enqueue_script( 'mwo-masonry-init', get_template_directory_uri() . '/js/masonry-init.js', array( 'jquery', 'masonry', 'imagesloaded' ), '2.0.0', true );
+    // Masonry (conditionally loaded based on setting)
+    if ( $enable_masonry ) {
+        wp_enqueue_script( 'masonry' );
+        wp_enqueue_script( 'imagesloaded' );
+        wp_enqueue_script( 'mwo-masonry-init', get_template_directory_uri() . '/js/masonry-init.js', array( 'jquery', 'masonry', 'imagesloaded' ), '2.0.0', true );
+    }
 
     // GLightbox
     wp_enqueue_script( 'glightbox', get_template_directory_uri() . '/js/glightbox.min.js', array(), '3.2.0', true );
@@ -119,12 +129,13 @@ function mwo_enqueue_assets() {
         'lightboxCaptions' => isset( $options['lightbox_captions'] ) ? $options['lightbox_captions'] : 1,
     ) );
 
-    // Add inline CSS for dynamic content container width
+    // Add inline CSS for dynamic settings
     $custom_css = "
         .content-container {
             max-width: {$content_container_width}px;
         }
     ";
+
     wp_add_inline_style( 'mwo-layout', $custom_css );
 }
 add_action( 'wp_enqueue_scripts', 'mwo_enqueue_assets' );
@@ -306,6 +317,14 @@ function mwo_register_settings() {
         'mwo_content_container_width',
         __( 'Content Container breedte', 'mwo' ),
         'mwo_content_container_width_callback',
+        'mwo-settings',
+        'mwo_general_section'
+    );
+
+    add_settings_field(
+        'mwo_enable_masonry',
+        __( 'Masonry layout voor galerijen', 'mwo' ),
+        'mwo_enable_masonry_callback',
         'mwo-settings',
         'mwo_general_section'
     );
@@ -592,6 +611,21 @@ function mwo_content_container_width_callback() {
 }
 
 /**
+ * Enable masonry field callback
+ */
+function mwo_enable_masonry_callback() {
+    $options = get_option( 'mwo_options' );
+    $enable_masonry = isset( $options['enable_masonry'] ) ? $options['enable_masonry'] : 1;
+    ?>
+    <label>
+        <input type="checkbox" name="mwo_options[enable_masonry]" value="1" <?php checked( $enable_masonry, 1 ); ?>>
+        <?php esc_html_e( 'Masonry layout inschakelen voor galerijen (aanbevolen)', 'mwo' ); ?>
+    </label>
+    <p class="description"><?php esc_html_e( 'Uitschakelen zorgt voor een standaard grid layout zonder JavaScript.', 'mwo' ); ?></p>
+    <?php
+}
+
+/**
  * Redirect to intro screen if enabled
  */
 function mwo_maybe_redirect_to_intro() {
@@ -690,6 +724,7 @@ function mwo_sanitize_options( $input ) {
     $sanitized['disable_footer_credits'] = isset( $input['disable_footer_credits'] ) ? 1 : 0;
     $sanitized['lightbox_captions'] = isset( $input['lightbox_captions'] ) ? 1 : 0;
     $sanitized['enable_intro'] = isset( $input['enable_intro'] ) ? 1 : 0;
+    $sanitized['enable_masonry'] = isset( $input['enable_masonry'] ) ? 1 : 0;
 
     // Intro images
     if ( isset( $input['intro_images'] ) && is_array( $input['intro_images'] ) ) {
