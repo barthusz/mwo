@@ -14,6 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 require_once get_template_directory() . '/inc/social-media.php';
 require_once get_template_directory() . '/inc/gallery-captions.php';
+require_once get_template_directory() . '/inc/admin-settings.php';
 
 /**
  * Disable unnecessary WordPress image sizes
@@ -389,16 +390,12 @@ function mwo_settings_page() {
 
 /**
  * Register settings
+ * NOTE: This function is now replaced by inc/admin-settings.php for better organization
+ * Kept here for backwards compatibility with callback functions
  */
-function mwo_register_settings() {
-    register_setting( 'mwo_settings', 'mwo_options', 'mwo_sanitize_options' );
-
-    add_settings_section(
-        'mwo_general_section',
-        __( 'Algemene Instellingen', 'mwo' ),
-        'mwo_general_section_callback',
-        'mwo-settings'
-    );
+function mwo_register_settings_OLD() {
+    // This function is now handled by inc/admin-settings.php
+    return;
 
     add_settings_field(
         'mwo_menu_placement',
@@ -568,14 +565,8 @@ function mwo_register_settings() {
         'mwo_general_section'
     );
 }
-add_action( 'admin_init', 'mwo_register_settings' );
-
-/**
- * Section callback
- */
-function mwo_general_section_callback() {
-    echo '<p>' . esc_html__( 'Configureer hier de instellingen voor Mijn Werk Online.', 'mwo' ) . '</p>';
-}
+// Oude add_action uitgeschakeld - nu geregeld in inc/admin-settings.php
+// add_action( 'admin_init', 'mwo_register_settings' );
 
 /**
  * Menu placement field callback

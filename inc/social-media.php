@@ -44,39 +44,33 @@ function mwo_get_social_platforms() {
 
 /**
  * Register social media settings
+ * NOTE: Now registered in inc/admin-settings.php as part of organized settings
  */
-function mwo_register_social_settings() {
-    add_settings_section(
-        'mwo_social_section',
-        __( 'Social Media', 'mwo' ),
-        'mwo_social_section_callback',
-        'mwo-settings'
-    );
+// function mwo_register_social_settings() {
+//     add_settings_section(
+//         'mwo_social_section',
+//         __( 'Social Media', 'mwo' ),
+//         'mwo_social_section_callback',
+//         'mwo-settings'
+//     );
 
-    $platforms = mwo_get_social_platforms();
+//     $platforms = mwo_get_social_platforms();
 
-    foreach ( $platforms as $key => $platform ) {
-        add_settings_field(
-            'mwo_social_' . $key,
-            $platform['label'],
-            'mwo_social_field_callback',
-            'mwo-settings',
-            'mwo_social_section',
-            array(
-                'platform' => $key,
-                'data'     => $platform,
-            )
-        );
-    }
-}
-add_action( 'admin_init', 'mwo_register_social_settings', 11 );
-
-/**
- * Social media section callback
- */
-function mwo_social_section_callback() {
-    echo '<p>' . esc_html__( 'Voeg links toe naar je social media profielen.', 'mwo' ) . '</p>';
-}
+//     foreach ( $platforms as $key => $platform ) {
+//         add_settings_field(
+//             'mwo_social_' . $key,
+//             $platform['label'],
+//             'mwo_social_field_callback',
+//             'mwo-settings',
+//             'mwo_social_section',
+//             array(
+//                 'platform' => $key,
+//                 'data'     => $platform,
+//             )
+//         );
+//     }
+// }
+// add_action( 'admin_init', 'mwo_register_social_settings', 11 );
 
 /**
  * Social media field callback
