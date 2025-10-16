@@ -38,6 +38,10 @@ if ( $menu_placement === 'top' && $sticky_header ) {
 if ( $content_protection ) {
     $body_classes[] = 'content-protection-enabled';
 }
+$darkmode = isset( $options['darkmode'] ) && $options['darkmode'] ? true : false;
+if ( $darkmode ) {
+    $body_classes[] = 'darkmode';
+}
 ?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>

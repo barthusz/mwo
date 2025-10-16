@@ -301,17 +301,23 @@ function mwo_enqueue_assets() {
             max-width: {$content_container_width}px;
         }
         .site-navigation a:hover,
-        .site-navigation .current-menu-item > a {
-            color: {$menu_accent_color};
+        .site-navigation .current-menu-item > a,
+        body.darkmode .site-navigation a:hover,
+        body.darkmode .site-navigation .current-menu-item > a {
+            color: {$menu_accent_color} !important;
         }
-        .social-media-links a:hover {
-            color: {$menu_accent_color};
+        .social-media-links a:hover,
+        body.darkmode .social-media-links a:hover {
+            color: {$menu_accent_color} !important;
         }
-        .site-footer .social-media-links a:hover {
-            color: {$menu_accent_color};
+        .site-footer .social-media-links a:hover,
+        body.darkmode .site-footer .social-media-links a:hover {
+            color: {$menu_accent_color} !important;
         }
         .site-content a,
-        .entry-content a {
+        .entry-content a,
+        body.darkmode .site-content a,
+        body.darkmode .entry-content a {
             color: {$link_color};
         }
     ";
@@ -692,6 +698,20 @@ function mwo_link_color_callback() {
     ?>
     <input type="text" name="mwo_options[link_color]" value="<?php echo esc_attr( $link_color ); ?>" class="mwo-color-picker">
     <p class="description"><?php esc_html_e( 'Kleur voor links in de content.', 'mwo' ); ?></p>
+    <?php
+}
+
+/**
+ * Darkmode field callback
+ */
+function mwo_darkmode_callback() {
+    $options = get_option( 'mwo_options' );
+    $darkmode = isset( $options['darkmode'] ) ? $options['darkmode'] : 0;
+    ?>
+    <label>
+        <input type="checkbox" name="mwo_options[darkmode]" value="1" <?php checked( $darkmode, 1 ); ?>>
+        <?php esc_html_e( 'Darkmode inschakelen (zwarte achtergrond, witte tekst)', 'mwo' ); ?>
+    </label>
     <?php
 }
 
@@ -1108,6 +1128,7 @@ function mwo_sanitize_options( $input ) {
 
     // Checkboxes
     $sanitized['sticky_header'] = isset( $input['sticky_header'] ) ? 1 : 0;
+    $sanitized['darkmode'] = isset( $input['darkmode'] ) ? 1 : 0;
     $sanitized['show_site_title'] = isset( $input['show_site_title'] ) ? 1 : 0;
     $sanitized['show_tagline'] = isset( $input['show_tagline'] ) ? 1 : 0;
     $sanitized['disable_page_titles'] = isset( $input['disable_page_titles'] ) ? 1 : 0;

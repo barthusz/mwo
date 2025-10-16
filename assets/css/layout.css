@@ -196,6 +196,58 @@ body.menu-top .content-container-template .content-container * {
     opacity: 0.7;
 }
 
+/* Darkmode */
+body.darkmode {
+    background: #000;
+    color: #fff;
+}
+
+body.darkmode .site-header {
+    background: #000;
+    color: #fff;
+    border-right: 1px solid #333;
+}
+
+body.darkmode .site-navigation a {
+    color: #ccc;
+}
+
+body.darkmode .social-media-links a {
+    color: #fff;
+}
+
+body.darkmode .site-content {
+    color: #fff;
+}
+
+body.darkmode .site-content p {
+    color: #ddd;
+}
+
+body.darkmode .site-footer {
+    background: #000;
+    color: #fff;
+    border-top: 1px solid #333;
+}
+
+body.darkmode .site-footer p.copyright,
+body.darkmode .site-footer p.copyright a {
+    color: #999;
+}
+
+body.darkmode h1,
+body.darkmode h2,
+body.darkmode h3,
+body.darkmode h4,
+body.darkmode h5,
+body.darkmode h6 {
+    color: #fff;
+}
+
+/* Darkmode: Keep hover and active menu colors (from dynamic CSS) */
+/* The menu accent color and link color are set via inline CSS in functions.php */
+/* Those will still work because they have higher specificity */
+
 /* Responsive */
 @media (max-width: 768px) {
     body.menu-left .site-header {
