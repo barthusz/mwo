@@ -374,9 +374,15 @@ add_action( 'admin_menu', 'mwo_add_admin_page' );
  * Settings page content
  */
 function mwo_settings_page() {
+    // Get theme version dynamically
+    $theme = wp_get_theme();
+    $version = $theme->get( 'Version' );
     ?>
     <div class="wrap">
-        <h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+        <h1>
+            <?php echo esc_html( get_admin_page_title() ); ?>
+            <span style="font-size: 14px; font-weight: normal; color: #666; margin-left: 10px;">v<?php echo esc_html( $version ); ?></span>
+        </h1>
         <form method="post" action="options.php">
             <?php
             settings_fields( 'mwo_settings' );
