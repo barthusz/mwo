@@ -63,7 +63,7 @@ function mwo_register_organized_settings() {
     add_settings_field( 'mwo_content_protection', __( 'Content protectie', 'mwo' ), 'mwo_content_protection_callback', 'mwo-settings', 'mwo_photography_section' );
 
     // Subsection: Photo Upload Optimization
-    add_settings_field( 'mwo_photo_optimization_header', __( '🔧 Foto Upload Optimalisatie', 'mwo' ), 'mwo_photo_optimization_header_callback', 'mwo-settings', 'mwo_photography_section' );
+    add_settings_field( 'mwo_photo_optimization_header', '', 'mwo_photo_optimization_header_callback', 'mwo-settings', 'mwo_photography_section' );
     add_settings_field( 'mwo_auto_resize_images', '<span id="mwo-auto-resize-label">' . __( 'Automatisch foto\'s verkleinen', 'mwo' ) . '</span>', 'mwo_auto_resize_images_callback', 'mwo-settings', 'mwo_photography_section' );
     add_settings_field( 'mwo_max_image_size', '<span id="mwo-max-image-size-label">' . __( 'Maximale foto grootte', 'mwo' ) . '</span>', 'mwo_max_image_size_callback', 'mwo-settings', 'mwo_photography_section' );
     add_settings_field( 'mwo_disable_extra_sizes', __( 'Extra afbeeldingsformaten', 'mwo' ), 'mwo_disable_extra_sizes_callback', 'mwo-settings', 'mwo_photography_section' );
@@ -137,7 +137,7 @@ function mwo_social_section_callback() {
  * Subsection header (no actual field)
  */
 function mwo_photo_optimization_header_callback() {
-    echo '<h4 style="margin: 20px 0 10px 0; padding: 10px 0; border-top: 1px solid #ddd; color: #666;">🔧 Foto Upload Optimalisatie</h4>';
+    echo '<h4 style="margin: 20px 0 10px 0; padding: 10px 0; border-top: 1px solid #ddd; color: #666; font-weight: 600;">Foto Upload Optimalisatie</h4>';
     echo '<p class="description" style="margin-top: -5px;">' . esc_html__( 'Automatische optimalisatie bij het uploaden van foto\'s.', 'mwo' ) . '</p>';
 }
 
