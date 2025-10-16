@@ -20,7 +20,7 @@ function mwo_register_organized_settings() {
     // ============================================
     add_settings_section(
         'mwo_layout_section',
-        '<span class="mwo-section-title">📐 Layout & Branding</span>',
+        '<span class="mwo-section-title">Layout & Branding</span>',
         'mwo_layout_section_callback',
         'mwo-settings'
     );
@@ -40,7 +40,7 @@ function mwo_register_organized_settings() {
     // ============================================
     add_settings_section(
         'mwo_colors_section',
-        '<span class="mwo-section-title">🎨 Kleuren</span>',
+        '<span class="mwo-section-title">Kleuren</span>',
         'mwo_colors_section_callback',
         'mwo-settings'
     );
@@ -53,7 +53,7 @@ function mwo_register_organized_settings() {
     // ============================================
     add_settings_section(
         'mwo_photography_section',
-        '<span class="mwo-section-title">📸 Fotografie & Galerijen</span>',
+        '<span class="mwo-section-title">Fotografie & Galerijen</span>',
         'mwo_photography_section_callback',
         'mwo-settings'
     );
@@ -74,7 +74,7 @@ function mwo_register_organized_settings() {
     // ============================================
     add_settings_section(
         'mwo_intro_section',
-        '<span class="mwo-section-title">🏠 Intro Scherm <em style="font-weight: normal; color: #666;">(Optioneel)</em></span>',
+        '<span class="mwo-section-title">Intro Scherm <em style="font-weight: normal; color: #666;">(Optioneel)</em></span>',
         'mwo_intro_section_callback',
         'mwo-settings'
     );
@@ -88,7 +88,7 @@ function mwo_register_organized_settings() {
     // ============================================
     add_settings_section(
         'mwo_social_section',
-        '<span class="mwo-section-title">🔗 Social Media</span>',
+        '<span class="mwo-section-title">Social Media</span>',
         'mwo_social_section_callback',
         'mwo-settings'
     );
@@ -255,8 +255,11 @@ function mwo_admin_settings_css() {
                     id: $(this).attr('id'),
                     elements: [$(this)]
                 };
-            } else if (currentTab && $(this).is('table.form-table')) {
-                currentTab.elements.push($(this));
+            } else if (currentTab) {
+                // Add all elements between h2 tags (including p tags from callbacks and tables)
+                if ($(this).is('table.form-table') || $(this).is('p')) {
+                    currentTab.elements.push($(this));
+                }
             }
         });
         if (currentTab) {
