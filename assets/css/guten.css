@@ -4,11 +4,35 @@
  */
 
 /* Paragraph */
-p {
+p, h2.wp-block-heading, h3.wp-block-heading {
     margin-bottom: 1em;
+}
+
+/* Media Text Block - Media on the right */
+.wp-block-media-text.has-media-on-the-right .wp-block-media-text__content {
+    padding-left: 0;
 }
 
 /* Mobile styles */
 @media (max-width: 600px) {
+    .site-content .wp-block-media-text__content {
+        padding-left: 0;
+        padding-right: 0;
+        margin-top: 1em;
+        margin-bottom: 1em;
+    }
 
+    /* Force media below content on mobile */
+    .wp-block-media-text.has-media-on-the-right {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .wp-block-media-text.has-media-on-the-right .wp-block-media-text__content {
+        order: 1;
+    }
+
+    .wp-block-media-text.has-media-on-the-right .wp-block-media-text__media {
+        order: 2;
+    }
 }
