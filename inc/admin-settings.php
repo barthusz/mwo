@@ -16,11 +16,11 @@ function mwo_register_organized_settings() {
     register_setting( 'mwo_settings', 'mwo_options', 'mwo_sanitize_options' );
 
     // ============================================
-    // SECTION 1: LAYOUT & BRANDING
+    // SECTION 1: LAYOUT & LOGO
     // ============================================
     add_settings_section(
         'mwo_layout_section',
-        '<span class="mwo-section-title">Layout & Branding</span>',
+        '<span class="mwo-section-title">Layout & Logo</span>',
         'mwo_layout_section_callback',
         'mwo-settings'
     );
@@ -114,11 +114,11 @@ add_action( 'admin_init', 'mwo_register_organized_settings' );
  * Section Callbacks
  */
 function mwo_layout_section_callback() {
-    echo '<p>' . esc_html__( 'Configureer de algemene layout en branding van je website.', 'mwo' ) . '</p>';
+    echo '<p>' . esc_html__( 'Configureer de algemene layout en het logo van je website.', 'mwo' ) . '</p>';
 }
 
 function mwo_colors_section_callback() {
-    echo '<p>' . esc_html__( 'Pas de kleuren van menu, links en andere elementen aan.', 'mwo' ) . '</p>';
+    echo '<p>' . esc_html__( 'Pas de kleuren van het menu, links en andere elementen aan.', 'mwo' ) . '</p>';
 }
 
 function mwo_photography_section_callback() {
@@ -126,7 +126,7 @@ function mwo_photography_section_callback() {
 }
 
 function mwo_intro_section_callback() {
-    echo '<p>' . esc_html__( 'Schakel een intro scherm in dat bezoekers zien voordat je je site betreden.', 'mwo' ) . '</p>';
+    echo '<p>' . esc_html__( 'Toon een introscherm dat bezoekers zien voordat ze je site betreden.', 'mwo' ) . '</p>';
 }
 
 function mwo_social_section_callback() {
