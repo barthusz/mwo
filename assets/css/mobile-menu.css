@@ -195,4 +195,34 @@
         display: block !important;
         width: 100%;
     }
+
+    /* Darkmode for mobile */
+    body.darkmode .mobile-header {
+        background: #000;
+        border-bottom: 1px solid #333;
+    }
+
+    body.darkmode .hamburger span {
+        background: #fff;
+    }
+
+    body.darkmode .site-navigation {
+        background: #000;
+    }
+
+    body.darkmode .site-navigation a {
+        color: #ccc;
+    }
+
+    body.darkmode .site-navigation li {
+        border-bottom: 1px solid #333;
+    }
+
+    body.darkmode .social-media-links a {
+        color: #fff;
+    }
+
+    body.darkmode .site-navigation .social-media-links {
+        border-top: 1px solid #333;
+    }
 }
