@@ -151,9 +151,34 @@ function mwo_admin_settings_css() {
     }
     ?>
     <style>
+        /* Header with submit button */
+        .mwo-settings-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .mwo-settings-header h1 {
+            margin: 0;
+        }
+
+        /* Submit button styling */
+        .mwo-submit-top {
+            margin: 0;
+            padding: 0;
+            border: none !important;
+        }
+
+        .mwo-submit-top .button-primary {
+            height: 36px;
+            line-height: 34px;
+            padding: 0 20px;
+        }
+
         /* Tab Navigation */
         .mwo-tab-nav {
-            margin: 20px 0 0 0;
+            margin: 0 0 0 0;
             padding: 0;
             border-bottom: 1px solid #ccd0d4;
             display: flex;
@@ -235,11 +260,9 @@ function mwo_admin_settings_css() {
 
     <script>
     jQuery(document).ready(function($) {
-        // Create tab navigation
+        var $wrap = $('.wrap');
+        var $h1 = $wrap.find('h1').first();
         var $form = $('form[action="options.php"]');
-        var $sections = $form.find('> h2, > table.form-table').filter(function() {
-            return !$(this).prev('h2').length || $(this).is('h2');
-        });
 
         // Group sections with their tables
         var tabs = [];
@@ -268,6 +291,24 @@ function mwo_admin_settings_css() {
 
         // Only create tabs if we have sections
         if (tabs.length > 1) {
+            // Clone submit button for header, keep original in form hidden
+            var $originalSubmit = $form.find('p.submit');
+            var $submitClone = $originalSubmit.clone().addClass('mwo-submit-top');
+
+            // Hide original submit button
+            $originalSubmit.hide();
+
+            // Create header wrapper with h1 and cloned submit button
+            var $headerWrapper = $('<div class="mwo-settings-header"></div>');
+            $headerWrapper.append($h1.clone()).append($submitClone);
+            $h1.replaceWith($headerWrapper);
+
+            // Make cloned button trigger the real submit button
+            $submitClone.find('input[type="submit"]').on('click', function(e) {
+                e.preventDefault();
+                $originalSubmit.find('input[type="submit"]').click();
+            });
+
             // Create tab navigation
             var $tabNav = $('<ul class="mwo-tab-nav"></ul>');
 
@@ -291,15 +332,11 @@ function mwo_admin_settings_css() {
                     $wrapper.append($el);
                 });
 
-                if (index === 0) {
-                    $form.prepend($wrapper);
-                } else {
-                    $form.find('.mwo-tab-content').last().after($wrapper);
-                }
+                $form.append($wrapper);
             });
 
-            // Insert tab navigation after h1
-            $form.prev('h1').after($tabNav);
+            // Insert tab navigation before form
+            $form.before($tabNav);
 
             // Tab switching
             $tabNav.on('click', 'button', function() {
