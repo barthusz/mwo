@@ -1,0 +1,14 @@
+/**
+ * Gutenberg Block Styles
+ * Extra styling voor Gutenberg editor blokken
+ */
+
+/* Paragraph */
+p {
+    margin-bottom: 1em;
+}
+
+/* Mobile styles */
+@media (max-width: 600px) {
+
+}

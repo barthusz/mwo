@@ -257,6 +257,9 @@ function mwo_enqueue_assets() {
     wp_enqueue_style( 'glightbox', get_template_directory_uri() . '/assets/css/glightbox.min.css', array(), '3.2.0' );
     wp_enqueue_style( 'mwo-lightbox-custom', get_template_directory_uri() . '/assets/css/lightbox-custom.css', array( 'glightbox' ), '1.0.0' );
 
+    // Gutenberg block styles
+    wp_enqueue_style( 'mwo-guten', get_template_directory_uri() . '/assets/css/guten.css', array(), '1.0.0' );
+
     // Other custom styles
     wp_enqueue_style( 'mwo-other', get_template_directory_uri() . '/assets/css/other.css', array(), '1.0.0' );
 
