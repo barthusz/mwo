@@ -10,10 +10,10 @@
 
 /* Mobile styles */
 @media (max-width: 768px) {
-    /* Reset body layout for mobile */
-    body.menu-left,
-    body.menu-top {
-        display: block !important;
+    /* Reset layout for mobile */
+    body.menu-left .site-container,
+    body.menu-top .site-container {
+        flex-direction: column !important;
         min-height: 100vh;
     }
 
@@ -158,6 +158,7 @@
         margin-left: 0 !important;
         padding-top: 70px !important;
         flex: 1;
+        width: 100%;
     }
 
     body.menu-left .site-content,
@@ -189,12 +190,9 @@
         border-top: 1px solid #eee;
     }
 
-    /* Footer */
-    body.menu-left .site-footer {
-        display: none;
-    }
-
-    body.menu-top .site-footer {
-        display: block;
+    /* Footer - always show on mobile */
+    .site-footer {
+        display: block !important;
+        width: 100%;
     }
 }

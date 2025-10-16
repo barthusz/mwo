@@ -49,6 +49,8 @@ if ( $content_protection ) {
 <body <?php body_class( $body_classes ); ?>>
 <?php wp_body_open(); ?>
 
+<div class="site-container">
+
 <header class="site-header">
     <div class="mobile-header">
         <div class="site-branding-mobile">
