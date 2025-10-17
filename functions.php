@@ -1019,16 +1019,53 @@ function mwo_optimize_srcset_callback() {
 }
 
 /**
- * Redirect to intro screen if enabled
+ * Configure cache headers for intro screen functionality (works with all cache plugins)
+ *
+ * This function ensures the intro screen works correctly with ALL caching solutions:
+ * - LiteSpeed Cache
+ * - WP Rocket
+ * - W3 Total Cache
+ * - WP Super Cache
+ * - Cloudflare
+ * - Any other WordPress cache plugin
+ *
+ * The intro page uses DONOTCACHEPAGE constant which is respected by all major cache plugins.
+ * The homepage uses JavaScript-based redirect which works with cached pages.
  */
-function mwo_maybe_redirect_to_intro() {
-    // Don't redirect in admin, on login pages, or if skip parameter is set
-    if ( is_admin() || isset( $_GET['skip_intro'] ) || is_404() ) {
+function mwo_cache_config_for_intro() {
+    // Check if intro screen is enabled
+    $options = get_option( 'mwo_options' );
+    $enable_intro = isset( $options['enable_intro'] ) && $options['enable_intro'];
+
+    if ( ! $enable_intro ) {
         return;
     }
 
-    // Check if we're already on the intro page
+    // Don't cache the intro template page (universal headers)
     if ( is_page_template( 'template-intro.php' ) ) {
+        if ( ! headers_sent() ) {
+            // LiteSpeed Cache
+            header( 'X-LiteSpeed-Cache-Control: no-cache' );
+            // Standard cache headers (WP Rocket, W3 Total Cache, etc.)
+            header( 'Cache-Control: no-cache, no-store, must-revalidate, max-age=0' );
+            header( 'Pragma: no-cache' );
+            header( 'Expires: 0' );
+        }
+
+        // Exclude from cache plugins
+        if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+            define( 'DONOTCACHEPAGE', true );
+        }
+    }
+}
+add_action( 'template_redirect', 'mwo_cache_config_for_intro', 1 );
+
+/**
+ * Add intro redirect script to homepage (cache-friendly with JavaScript)
+ */
+function mwo_intro_redirect_script() {
+    // Don't run in admin
+    if ( is_admin() ) {
         return;
     }
 
@@ -1051,34 +1088,51 @@ function mwo_maybe_redirect_to_intro() {
         return;
     }
 
-    // Start session if not already started
-    if ( ! isset( $_SESSION ) ) {
-        session_start();
-    }
+    $intro_url = get_permalink( $intro_page[0]->ID );
 
-    // Force show intro with ?show_intro=1 parameter (for testing/preview)
-    if ( isset( $_GET['show_intro'] ) ) {
-        wp_redirect( get_permalink( $intro_page[0]->ID ) );
-        exit;
-    }
+    // Only add script on homepage (front page or home URL without path)
+    $is_homepage = is_front_page() || ( is_home() && ! is_paged() );
 
-    // Reset session with ?reset_intro=1 parameter (for testing)
-    if ( isset( $_GET['reset_intro'] ) ) {
-        unset( $_SESSION['mwo_intro_seen'] );
-        wp_redirect( home_url( '/' ) );
-        exit;
-    }
+    if ( $is_homepage ) {
+        // Add inline JavaScript to check cookie and redirect (works with cache)
+        ?>
+        <script>
+        (function() {
+            // Check if intro has been seen or if skip parameter is present
+            var allCookies = document.cookie;
+            var hasSeenIntro = allCookies.indexOf('mwo_intro_seen') !== -1;
+            var urlParams = new URLSearchParams(window.location.search);
+            var skipIntro = urlParams.has('skip_intro');
+            var showIntro = urlParams.has('show_intro');
+            var resetIntro = urlParams.has('reset_intro');
 
-    // Only redirect on homepage
-    if ( is_front_page() && ! isset( $_GET['skip_intro'] ) ) {
-        if ( ! isset( $_SESSION['mwo_intro_seen'] ) ) {
-            $_SESSION['mwo_intro_seen'] = true;
-            wp_redirect( get_permalink( $intro_page[0]->ID ) );
-            exit;
-        }
+            // Debug: uncomment next line to see cookie status in console
+            // console.log('Intro cookie check:', { hasSeenIntro: hasSeenIntro, cookies: allCookies });
+
+            // Handle reset_intro parameter
+            if (resetIntro) {
+                document.cookie = 'mwo_intro_seen=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax';
+                window.location.href = '<?php echo esc_url( home_url( '/' ) ); ?>';
+                return;
+            }
+
+            // Handle show_intro parameter
+            if (showIntro) {
+                document.cookie = 'mwo_intro_seen=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax';
+                window.location.href = '<?php echo esc_url( $intro_url ); ?>';
+                return;
+            }
+
+            // Redirect to intro if not seen and not skipped
+            if (!hasSeenIntro && !skipIntro) {
+                window.location.href = '<?php echo esc_url( $intro_url ); ?>';
+            }
+        })();
+        </script>
+        <?php
     }
 }
-add_action( 'template_redirect', 'mwo_maybe_redirect_to_intro' );
+add_action( 'wp_head', 'mwo_intro_redirect_script', 1 );
 
 /**
  * Sanitize options
