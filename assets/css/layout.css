@@ -253,11 +253,12 @@ body.darkmode h6 {
 /* iPad Portrait - Menu Left optimization */
 @media (min-width: 769px) and (max-width: 1024px) {
     body.menu-left .site-header {
-        width: 180px;
+        width: 150px;
+        padding: 30px 15px;
     }
 
     body.menu-left .site-main-wrapper {
-        margin-left: 180px;
+        margin-left: 150px;
     }
 
     body.menu-left .site-content {
