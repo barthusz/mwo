@@ -255,7 +255,7 @@ function mwo_enqueue_assets() {
 
     // GLightbox styles
     wp_enqueue_style( 'glightbox', get_template_directory_uri() . '/assets/css/glightbox.min.css', array(), '3.2.0' );
-    wp_enqueue_style( 'mwo-lightbox-custom', get_template_directory_uri() . '/assets/css/lightbox-custom.css', array( 'glightbox' ), '1.0.0' );
+    wp_enqueue_style( 'mwo-lightbox-custom', get_template_directory_uri() . '/assets/css/lightbox-custom.css', array( 'glightbox' ), '1.3.0' );
 
     // Gutenberg block styles
     wp_enqueue_style( 'mwo-guten', get_template_directory_uri() . '/assets/css/guten.css', array(), '1.0.0' );
@@ -277,7 +277,7 @@ function mwo_enqueue_assets() {
     wp_enqueue_script( 'glightbox', get_template_directory_uri() . '/js/glightbox.min.js', array(), '3.2.0', true );
 
     // Lightbox initialization
-    wp_enqueue_script( 'mwo-lightbox-init', get_template_directory_uri() . '/js/lightbox-init.js', array( 'glightbox' ), '1.1.0', true );
+    wp_enqueue_script( 'mwo-lightbox-init', get_template_directory_uri() . '/js/lightbox-init.js', array( 'glightbox' ), '1.6.0', true );
 
     // Sticky header
     wp_enqueue_script( 'mwo-sticky-header', get_template_directory_uri() . '/js/sticky-header.js', array(), '1.0.0', true );

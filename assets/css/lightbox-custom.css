@@ -88,6 +88,42 @@
     stroke: #333 !important;
 }
 
+/* Fullscreen button */
+.gfullscreen-btn {
+    position: absolute !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    border: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    top: 20px !important;
+    right: 70px !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+    cursor: pointer !important;
+    z-index: 99999 !important;
+}
+
+.gfullscreen-btn:hover {
+    background: rgba(255, 255, 255, 1) !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+.gfullscreen-btn svg {
+    width: 18px !important;
+    height: 18px !important;
+    color: #333 !important;
+}
+
+.gfullscreen-btn svg path {
+    stroke: #333 !important;
+}
+
+
 /* Image counter */
 .gslide-title {
     color: #fff !important;
@@ -225,6 +261,13 @@
         height: 40px !important;
         top: 10px !important;
         right: 10px !important;
+    }
+
+    .gfullscreen-btn {
+        width: 40px !important;
+        height: 40px !important;
+        top: 10px !important;
+        right: 60px !important;
     }
 
     .gslide-title {
