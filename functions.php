@@ -240,14 +240,14 @@ function mwo_enqueue_assets() {
     wp_enqueue_style( 'font-awesome', get_template_directory_uri() . '/assets/css/all.min.css', array(), '6.5.1' );
 
     // Layout styles
-    wp_enqueue_style( 'mwo-layout', get_template_directory_uri() . '/assets/css/layout.css', array(), '1.1.3' );
+    wp_enqueue_style( 'mwo-layout', get_template_directory_uri() . '/assets/css/layout.css', array(), '1.2.0' );
 
     // Sidebar styles
     wp_enqueue_style( 'mwo-sidebar', get_template_directory_uri() . '/assets/css/sidebar.css', array(), '1.0.0' );
 
     // Gallery styles (only load when masonry is enabled)
     if ( $enable_masonry ) {
-        wp_enqueue_style( 'mwo-gallery', get_template_directory_uri() . '/assets/css/gallery.css', array(), '2.1.0' );
+        wp_enqueue_style( 'mwo-gallery', get_template_directory_uri() . '/assets/css/gallery.css', array(), '2.2.0' );
     }
 
     // Mobile menu styles

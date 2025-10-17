@@ -109,3 +109,15 @@
 .wp-block-gallery .blocks-gallery-item:last-child {
     margin-bottom: 0 !important;
 }
+
+/* iPad Portrait - Max 3 columns when menu is left */
+@media (min-width: 769px) and (max-width: 1024px) {
+    body.menu-left .wp-block-gallery.columns-4 .wp-block-image,
+    body.menu-left .wp-block-gallery.columns-4 .blocks-gallery-item,
+    body.menu-left .wp-block-gallery.columns-5 .wp-block-image,
+    body.menu-left .wp-block-gallery.columns-5 .blocks-gallery-item,
+    body.menu-left .wp-block-gallery.columns-6 .wp-block-image,
+    body.menu-left .wp-block-gallery.columns-6 .blocks-gallery-item {
+        width: calc(33.333% - 5.333px) !important;
+    }
+}
