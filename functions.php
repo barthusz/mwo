@@ -300,7 +300,7 @@ function mwo_enqueue_assets() {
     $link_color = isset( $options['link_color'] ) ? $options['link_color'] : '#c34143';
 
     $custom_css = "
-        .content-container {
+        .entry-content > :not(.wp-block-gallery) {
             max-width: {$content_container_width}px;
         }
         .site-navigation a:hover,

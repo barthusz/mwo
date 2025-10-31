@@ -25,7 +25,7 @@ $disable_page_titles = isset( $options['disable_page_titles'] ) && $options['dis
                 </header>
             <?php endif; ?>
 
-            <div class="entry-content content-container">
+            <div class="entry-content">
                 <?php
                 the_content();
 
