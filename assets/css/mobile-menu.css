@@ -37,6 +37,22 @@
         width: auto;
     }
 
+    .site-branding-mobile .site-title {
+        margin: 0;
+        font-size: 20px;
+        line-height: 1.2;
+    }
+
+    .site-branding-mobile .site-title a {
+        color: #333;
+        text-decoration: none;
+    }
+
+    .site-branding-mobile .site-title a:hover {
+        color: #333;
+        text-decoration: none;
+    }
+
     /* Hamburger button */
     .mobile-menu-toggle {
         background: none;
@@ -204,6 +220,14 @@
 
     body.darkmode .hamburger span {
         background: #fff;
+    }
+
+    body.darkmode .site-branding-mobile .site-title a {
+        color: #fff;
+    }
+
+    body.darkmode .site-branding-mobile .site-title a:hover {
+        color: #fff;
     }
 
     body.darkmode .site-navigation {

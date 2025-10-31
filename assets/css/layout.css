@@ -208,7 +208,19 @@ body.darkmode .site-header {
     border-right: 1px solid #333;
 }
 
+body.darkmode .site-navigation {
+    background: #000;
+}
+
 body.darkmode .site-navigation a {
+    color: #ccc;
+}
+
+body.darkmode .site-title a {
+    color: #fff;
+}
+
+body.darkmode .site-description {
     color: #ccc;
 }
 

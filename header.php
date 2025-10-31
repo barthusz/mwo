@@ -71,6 +71,13 @@ if ( $darkmode ) {
                         absint( $logo_width )
                     );
                 }
+            } else {
+                // Show site title if no logo
+                printf(
+                    '<h1 class="site-title"><a href="%s" rel="home">%s</a></h1>',
+                    esc_url( $logo_link_url ),
+                    esc_html( get_bloginfo( 'name' ) )
+                );
             }
             ?>
         </div>
