@@ -417,6 +417,10 @@ function mwo_enqueue_assets() {
     $tagline_font_size = isset( $options['tagline_font_size'] ) ? $options['tagline_font_size'] : 14;
     $button_font_size = isset( $options['button_font_size'] ) ? $options['button_font_size'] : 18;
 
+    // Text transform options
+    $headings_uppercase = isset( $options['headings_uppercase'] ) ? $options['headings_uppercase'] : 0;
+    $menu_uppercase = isset( $options['menu_uppercase'] ) ? $options['menu_uppercase'] : 0;
+
     // Generate custom font CSS if font is set
     $custom_css = '';
     if ( ! empty( $custom_font ) ) {
@@ -467,6 +471,25 @@ function mwo_enqueue_assets() {
             color: {$link_color};
         }
     ";
+
+    // Add text-transform for headings if enabled
+    if ( $headings_uppercase ) {
+        $custom_css .= "
+        .entry-content h1,
+        .entry-title {
+            text-transform: uppercase;
+        }
+        ";
+    }
+
+    // Add text-transform for menu items if enabled
+    if ( $menu_uppercase ) {
+        $custom_css .= "
+        .site-navigation a {
+            text-transform: uppercase !important;
+        }
+        ";
+    }
 
     // Add user's custom CSS if set
     $user_custom_css = isset( $options['custom_css'] ) ? $options['custom_css'] : '';
@@ -890,6 +913,20 @@ function mwo_heading_font_size_callback() {
 }
 
 /**
+ * Headings uppercase field callback
+ */
+function mwo_headings_uppercase_callback() {
+    $options = get_option( 'mwo_options' );
+    $headings_uppercase = isset( $options['headings_uppercase'] ) ? $options['headings_uppercase'] : 0;
+    ?>
+    <label>
+        <input type="checkbox" name="mwo_options[headings_uppercase]" value="1" <?php checked( $headings_uppercase, 1 ); ?>>
+        <?php esc_html_e( 'Toon pagina koppen in hoofdletters', 'mwo' ); ?>
+    </label>
+    <?php
+}
+
+/**
  * Menu font size field callback
  */
 function mwo_menu_font_size_callback() {
@@ -899,6 +936,20 @@ function mwo_menu_font_size_callback() {
     <input type="number" name="mwo_options[menu_font_size]" value="<?php echo esc_attr( $menu_font_size ); ?>" min="12" step="1">
     <span>px</span>
     <p class="description"><?php esc_html_e( 'Lettergrootte voor de menu items (standaard: 16px).', 'mwo' ); ?></p>
+    <?php
+}
+
+/**
+ * Menu uppercase field callback
+ */
+function mwo_menu_uppercase_callback() {
+    $options = get_option( 'mwo_options' );
+    $menu_uppercase = isset( $options['menu_uppercase'] ) ? $options['menu_uppercase'] : 0;
+    ?>
+    <label>
+        <input type="checkbox" name="mwo_options[menu_uppercase]" value="1" <?php checked( $menu_uppercase, 1 ); ?>>
+        <?php esc_html_e( 'Toon menu items in hoofdletters', 'mwo' ); ?>
+    </label>
     <?php
 }
 
@@ -1619,6 +1670,8 @@ function mwo_sanitize_options( $input ) {
     $sanitized['auto_resize_images'] = isset( $input['auto_resize_images'] ) ? 1 : 0;
     $sanitized['disable_extra_sizes'] = isset( $input['disable_extra_sizes'] ) ? 1 : 0;
     $sanitized['optimize_srcset'] = isset( $input['optimize_srcset'] ) ? 1 : 0;
+    $sanitized['headings_uppercase'] = isset( $input['headings_uppercase'] ) ? 1 : 0;
+    $sanitized['menu_uppercase'] = isset( $input['menu_uppercase'] ) ? 1 : 0;
 
     // Max image size
     if ( isset( $input['max_image_size'] ) ) {

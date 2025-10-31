@@ -48,7 +48,9 @@ function mwo_register_organized_settings() {
     add_settings_field( 'mwo_custom_font', __( 'Custom Font', 'mwo' ), 'mwo_custom_font_callback', 'mwo-settings', 'mwo_typography_section' );
     add_settings_field( 'mwo_body_font_size', __( 'Pagina content lettergrootte', 'mwo' ), 'mwo_body_font_size_callback', 'mwo-settings', 'mwo_typography_section' );
     add_settings_field( 'mwo_heading_font_size', __( 'Pagina koppen lettergrootte', 'mwo' ), 'mwo_heading_font_size_callback', 'mwo-settings', 'mwo_typography_section' );
+    add_settings_field( 'mwo_headings_uppercase', __( 'Pagina koppen in hoofdletters', 'mwo' ), 'mwo_headings_uppercase_callback', 'mwo-settings', 'mwo_typography_section' );
     add_settings_field( 'mwo_menu_font_size', __( 'Menu items lettergrootte', 'mwo' ), 'mwo_menu_font_size_callback', 'mwo-settings', 'mwo_typography_section' );
+    add_settings_field( 'mwo_menu_uppercase', __( 'Menu items in hoofdletters', 'mwo' ), 'mwo_menu_uppercase_callback', 'mwo-settings', 'mwo_typography_section' );
     add_settings_field( 'mwo_site_title_font_size', __( 'Site titel lettergrootte', 'mwo' ), 'mwo_site_title_font_size_callback', 'mwo-settings', 'mwo_typography_section' );
     add_settings_field( 'mwo_tagline_font_size', __( 'Ondertitel lettergrootte', 'mwo' ), 'mwo_tagline_font_size_callback', 'mwo-settings', 'mwo_typography_section' );
     add_settings_field( 'mwo_intro_title_font_size', __( 'Intro titel lettergrootte', 'mwo' ), 'mwo_intro_title_font_size_callback', 'mwo-settings', 'mwo_typography_section' );
