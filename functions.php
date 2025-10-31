@@ -330,6 +330,12 @@ function mwo_enqueue_assets() {
             }
         ";
 
+        // Add user's custom CSS if set
+        $user_custom_css = isset( $options['custom_css'] ) ? $options['custom_css'] : '';
+        if ( ! empty( $user_custom_css ) ) {
+            $intro_css .= "\n\n/* Custom CSS */\n" . $user_custom_css;
+        }
+
         wp_add_inline_style( 'mwo-intro-screen', $intro_css );
 
         return; // Don't load other assets on intro screen
@@ -461,6 +467,12 @@ function mwo_enqueue_assets() {
             color: {$link_color};
         }
     ";
+
+    // Add user's custom CSS if set
+    $user_custom_css = isset( $options['custom_css'] ) ? $options['custom_css'] : '';
+    if ( ! empty( $user_custom_css ) ) {
+        $custom_css .= "\n\n/* Custom CSS */\n" . $user_custom_css;
+    }
 
     wp_add_inline_style( 'mwo-layout', $custom_css );
 }
@@ -952,6 +964,61 @@ function mwo_button_font_size_callback() {
     <input type="number" name="mwo_options[button_font_size]" value="<?php echo esc_attr( $button_font_size ); ?>" min="12" step="1">
     <span>px</span>
     <p class="description"><?php esc_html_e( 'Lettergrootte voor de knop op het introscherm (standaard: 18px).', 'mwo' ); ?></p>
+    <?php
+}
+
+/**
+ * Custom CSS field callback
+ */
+function mwo_custom_css_callback() {
+    $options = get_option( 'mwo_options' );
+    $custom_css = isset( $options['custom_css'] ) ? $options['custom_css'] : '';
+
+    // Get CodeMirror settings
+    $settings = wp_enqueue_code_editor( array( 'type' => 'text/css' ) );
+
+    // Bail if user disabled CodeMirror
+    if ( false === $settings ) {
+        ?>
+        <textarea name="mwo_options[custom_css]" rows="10" class="large-text code" style="font-family: monospace;"><?php echo esc_textarea( $custom_css ); ?></textarea>
+        <?php
+    } else {
+        ?>
+        <div style="max-width: 800px;">
+            <textarea id="mwo_custom_css" name="mwo_options[custom_css]" rows="10" class="large-text code"><?php echo esc_textarea( $custom_css ); ?></textarea>
+        </div>
+        <script type="text/javascript">
+        jQuery(document).ready(function($) {
+            if (typeof wp !== 'undefined' && wp.codeEditor) {
+                var editor = wp.codeEditor.initialize('mwo_custom_css', <?php echo wp_json_encode( $settings ); ?>);
+                // Refresh editor after initialization to fix line number alignment
+                setTimeout(function() {
+                    if (editor.codemirror) {
+                        editor.codemirror.refresh();
+                    }
+                }, 1);
+            }
+        });
+        </script>
+        <style>
+        .CodeMirror {
+            border: 1px solid #ddd;
+            height: auto;
+            min-height: 300px;
+        }
+        .CodeMirror-gutters {
+            border-right: 1px solid #ddd;
+        }
+        </style>
+        <?php
+    }
+    ?>
+    <p class="description">
+        <?php esc_html_e( 'Voeg hier je eigen CSS code toe. Deze wordt automatisch toegepast op je website.', 'mwo' ); ?>
+        <br>
+        <strong><?php esc_html_e( 'Let op:', 'mwo' ); ?></strong>
+        <?php esc_html_e( ' Ongeldige CSS kan de opmaak van je website verstoren. Gebruik dit alleen als je weet wat je doet.', 'mwo' ); ?>
+    </p>
     <?php
 }
 
@@ -1593,6 +1660,14 @@ function mwo_sanitize_options( $input ) {
 
     // Social media URLs
     $sanitized = mwo_sanitize_social_urls( $input, $sanitized );
+
+    // Custom CSS
+    if ( isset( $input['custom_css'] ) ) {
+        // Strip tags but allow CSS
+        $sanitized['custom_css'] = wp_strip_all_tags( $input['custom_css'] );
+    } else {
+        $sanitized['custom_css'] = '';
+    }
 
     return $sanitized;
 }

@@ -128,6 +128,18 @@ function mwo_register_organized_settings() {
             )
         );
     }
+
+    // ============================================
+    // SECTION 6: ADVANCED
+    // ============================================
+    add_settings_section(
+        'mwo_advanced_section',
+        '<span class="mwo-section-title">Geavanceerd</span>',
+        'mwo_advanced_section_callback',
+        'mwo-settings'
+    );
+
+    add_settings_field( 'mwo_custom_css', __( 'Custom CSS', 'mwo' ), 'mwo_custom_css_callback', 'mwo-settings', 'mwo_advanced_section' );
 }
 add_action( 'admin_init', 'mwo_register_organized_settings' );
 
@@ -156,6 +168,10 @@ function mwo_typography_section_callback() {
 
 function mwo_social_section_callback() {
     echo '<p>' . esc_html__( 'Voeg links toe naar je social media profielen.', 'mwo' ) . '</p>';
+}
+
+function mwo_advanced_section_callback() {
+    echo '<p>' . esc_html__( 'Geavanceerde instellingen voor experts.', 'mwo' ) . '</p>';
 }
 
 /**
