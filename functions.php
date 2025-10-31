@@ -405,6 +405,8 @@ function mwo_enqueue_assets() {
     ) );
 
     // Add inline CSS for dynamic settings
+    $text_color = isset( $options['text_color'] ) ? $options['text_color'] : '#333333';
+    $menu_color = isset( $options['menu_color'] ) ? $options['menu_color'] : '#333333';
     $menu_accent_color = isset( $options['menu_accent_color'] ) ? $options['menu_accent_color'] : '#c34143';
     $link_color = isset( $options['link_color'] ) ? $options['link_color'] : '#c34143';
     $custom_font = isset( $options['custom_font'] ) ? $options['custom_font'] : '';
@@ -428,8 +430,10 @@ function mwo_enqueue_assets() {
     }
 
     $custom_css .= "
+        /* Typography */
         body {
             font-size: {$body_font_size}px;
+            color: {$text_color};
         }
         .entry-content h1,
         .entry-title {
@@ -450,20 +454,64 @@ function mwo_enqueue_assets() {
         .entry-content > :not(.wp-block-gallery) {
             max-width: {$content_container_width}px;
         }
+
+        /* Text colors (light mode only) */
+        body:not(.darkmode) .entry-content h1,
+        body:not(.darkmode) .entry-title,
+        body:not(.darkmode) h1,
+        body:not(.darkmode) h2,
+        body:not(.darkmode) h3,
+        body:not(.darkmode) h4,
+        body:not(.darkmode) h5,
+        body:not(.darkmode) h6 {
+            color: {$text_color};
+        }
+        body:not(.darkmode) .site-title a {
+            color: {$text_color};
+        }
+        body:not(.darkmode) .site-description {
+            color: {$text_color};
+        }
+        body:not(.darkmode) .site-footer {
+            color: {$text_color};
+        }
+        body:not(.darkmode) .site-footer p.copyright,
+        body:not(.darkmode) .site-footer p.copyright a {
+            color: {$text_color};
+        }
+
+        /* Menu colors (light mode only) */
+        body:not(.darkmode) .site-navigation a {
+            color: {$menu_color} !important;
+        }
+        body:not(.darkmode) .social-media-links a {
+            color: {$menu_color};
+        }
+        body:not(.darkmode) .site-footer .social-media-links a {
+            color: {$menu_color};
+        }
+
+        /* Menu accent colors (both light and dark mode) - higher specificity */
+        body:not(.darkmode) .site-navigation a:hover,
+        body:not(.darkmode) .site-navigation .current-menu-item > a,
         .site-navigation a:hover,
         .site-navigation .current-menu-item > a,
         body.darkmode .site-navigation a:hover,
         body.darkmode .site-navigation .current-menu-item > a {
             color: {$menu_accent_color} !important;
         }
+        body:not(.darkmode) .social-media-links a:hover,
         .social-media-links a:hover,
         body.darkmode .social-media-links a:hover {
             color: {$menu_accent_color} !important;
         }
+        body:not(.darkmode) .site-footer .social-media-links a:hover,
         .site-footer .social-media-links a:hover,
         body.darkmode .site-footer .social-media-links a:hover {
             color: {$menu_accent_color} !important;
         }
+
+        /* Link colors (both light and dark mode) */
         .site-content a,
         .entry-content a,
         body.darkmode .site-content a,
@@ -1074,6 +1122,30 @@ function mwo_custom_css_callback() {
 }
 
 /**
+ * Text color field callback
+ */
+function mwo_text_color_callback() {
+    $options = get_option( 'mwo_options' );
+    $text_color = isset( $options['text_color'] ) ? $options['text_color'] : '#333333';
+    ?>
+    <input type="text" name="mwo_options[text_color]" value="<?php echo esc_attr( $text_color ); ?>" class="mwo-color-picker">
+    <p class="description"><?php esc_html_e( 'Standaard tekstkleur voor de hele website (alleen lichte modus).', 'mwo' ); ?></p>
+    <?php
+}
+
+/**
+ * Menu color field callback
+ */
+function mwo_menu_color_callback() {
+    $options = get_option( 'mwo_options' );
+    $menu_color = isset( $options['menu_color'] ) ? $options['menu_color'] : '#333333';
+    ?>
+    <input type="text" name="mwo_options[menu_color]" value="<?php echo esc_attr( $menu_color ); ?>" class="mwo-color-picker">
+    <p class="description"><?php esc_html_e( 'Standaard kleur voor menu items (alleen lichte modus).', 'mwo' ); ?></p>
+    <?php
+}
+
+/**
  * Menu accent color field callback
  */
 function mwo_menu_accent_color_callback() {
@@ -1634,6 +1706,26 @@ function mwo_sanitize_options( $input ) {
         }
     } else {
         $sanitized['button_font_size'] = 18;
+    }
+
+    // Text color
+    if ( isset( $input['text_color'] ) ) {
+        $sanitized['text_color'] = sanitize_hex_color( $input['text_color'] );
+        if ( empty( $sanitized['text_color'] ) ) {
+            $sanitized['text_color'] = '#333333';
+        }
+    } else {
+        $sanitized['text_color'] = '#333333';
+    }
+
+    // Menu color
+    if ( isset( $input['menu_color'] ) ) {
+        $sanitized['menu_color'] = sanitize_hex_color( $input['menu_color'] );
+        if ( empty( $sanitized['menu_color'] ) ) {
+            $sanitized['menu_color'] = '#333333';
+        }
+    } else {
+        $sanitized['menu_color'] = '#333333';
     }
 
     // Menu accent color

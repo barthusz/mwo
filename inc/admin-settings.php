@@ -67,6 +67,8 @@ function mwo_register_organized_settings() {
         'mwo-settings'
     );
 
+    add_settings_field( 'mwo_text_color', __( 'Tekstkleur (standaard)', 'mwo' ), 'mwo_text_color_callback', 'mwo-settings', 'mwo_colors_section' );
+    add_settings_field( 'mwo_menu_color', __( 'Menu standaard kleur', 'mwo' ), 'mwo_menu_color_callback', 'mwo-settings', 'mwo_colors_section' );
     add_settings_field( 'mwo_menu_accent_color', __( 'Menu accent kleur', 'mwo' ), 'mwo_menu_accent_color_callback', 'mwo-settings', 'mwo_colors_section' );
     add_settings_field( 'mwo_link_color', __( 'Link kleur', 'mwo' ), 'mwo_link_color_callback', 'mwo-settings', 'mwo_colors_section' );
     add_settings_field( 'mwo_darkmode', __( 'Darkmode', 'mwo' ), 'mwo_darkmode_callback', 'mwo-settings', 'mwo_colors_section' );
