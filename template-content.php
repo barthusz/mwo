@@ -1,7 +1,7 @@
 <?php
 /**
  * Template Name: Content Container
- * Template for pages with centered content container (max 1170px)
+ * Template for pages with centered content (max 1170px, excluding galleries)
  *
  * @package Mijn_Werk_Online
  */

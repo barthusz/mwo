@@ -220,18 +220,121 @@ function mwo_setup() {
 add_action( 'after_setup_theme', 'mwo_setup' );
 
 /**
+ * Generate custom font CSS with @font-face
+ * Checks for font files in /assets/custom-fonts/ directory
+ * Supports: woff2, woff, ttf
+ *
+ * @param string $font_family The font family name (e.g., "Proxima Nova")
+ * @return string CSS code for @font-face or empty string if no fonts found
+ */
+function mwo_generate_custom_font_css( $font_family ) {
+    if ( empty( $font_family ) ) {
+        return '';
+    }
+
+    // Convert font family name to filename format
+    // "Proxima Nova" -> "proxima-nova"
+    $font_filename = strtolower( trim( $font_family ) );
+    $font_filename = str_replace( ' ', '-', $font_filename );
+    $font_filename = preg_replace( '/[^a-z0-9\-]/', '', $font_filename );
+
+    // Get theme directory paths
+    $theme_dir = get_template_directory();
+    $theme_uri = get_template_directory_uri();
+    $font_dir = $theme_dir . '/assets/custom-fonts/';
+    $font_uri = $theme_uri . '/assets/custom-fonts/';
+
+    // Check which font formats exist
+    $formats = array(
+        'woff2' => array( 'ext' => 'woff2', 'format' => 'woff2' ),
+        'woff'  => array( 'ext' => 'woff', 'format' => 'woff' ),
+        'ttf'   => array( 'ext' => 'ttf', 'format' => 'truetype' ),
+    );
+
+    $available_fonts = array();
+    foreach ( $formats as $key => $format ) {
+        $file_path = $font_dir . $font_filename . '.' . $format['ext'];
+        if ( file_exists( $file_path ) ) {
+            $available_fonts[] = array(
+                'url'    => $font_uri . $font_filename . '.' . $format['ext'],
+                'format' => $format['format'],
+            );
+        }
+    }
+
+    // If no font files found, return empty
+    if ( empty( $available_fonts ) ) {
+        return '';
+    }
+
+    // Generate @font-face CSS
+    $css = "@font-face {\n";
+    $css .= "    font-family: '" . esc_attr( $font_family ) . "';\n";
+    $css .= "    src: ";
+
+    $src_parts = array();
+    foreach ( $available_fonts as $font ) {
+        $src_parts[] = "url('" . esc_url( $font['url'] ) . "') format('" . $font['format'] . "')";
+    }
+    $css .= implode( ",\n         ", $src_parts );
+
+    $css .= ";\n";
+    $css .= "    font-weight: normal;\n";
+    $css .= "    font-style: normal;\n";
+    $css .= "    font-display: swap;\n";
+    $css .= "}\n\n";
+
+    // Apply font to body with system font fallback
+    $css .= "body {\n";
+    $css .= "    font-family: '" . esc_attr( $font_family ) . "', ui-sans-serif, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif;\n";
+    $css .= "}\n";
+
+    return $css;
+}
+
+/**
  * Enqueue scripts and styles
  */
 function mwo_enqueue_assets() {
+    // Get theme options for dynamic CSS
+    $options = get_option( 'mwo_options' );
+
     // Intro screen styles and scripts (only on intro template)
     if ( is_page_template( 'template-intro.php' ) ) {
         wp_enqueue_style( 'mwo-intro-screen', get_template_directory_uri() . '/assets/css/intro-screen.css', array(), '1.0.1' );
         wp_enqueue_script( 'mwo-intro-screen', get_template_directory_uri() . '/js/intro-screen.js', array( 'jquery' ), '1.0.0', true );
+
+        // Add custom font and font sizes for intro screen
+        $custom_font = isset( $options['custom_font'] ) ? $options['custom_font'] : '';
+        $intro_title_font_size = isset( $options['intro_title_font_size'] ) ? $options['intro_title_font_size'] : 56;
+        $intro_tagline_font_size = isset( $options['intro_tagline_font_size'] ) ? $options['intro_tagline_font_size'] : 19;
+        $button_font_size = isset( $options['button_font_size'] ) ? $options['button_font_size'] : 18;
+
+        $intro_css = '';
+
+        // Generate custom font CSS if font is set
+        if ( ! empty( $custom_font ) ) {
+            $intro_css .= mwo_generate_custom_font_css( $custom_font );
+        }
+
+        // Add font sizes
+        $intro_css .= "
+            .intro-title {
+                font-size: {$intro_title_font_size}px;
+            }
+            .intro-tagline {
+                font-size: {$intro_tagline_font_size}px;
+            }
+            .intro-button {
+                font-size: {$button_font_size}px;
+            }
+        ";
+
+        wp_add_inline_style( 'mwo-intro-screen', $intro_css );
+
         return; // Don't load other assets on intro screen
     }
 
-    // Get theme options for dynamic CSS
-    $options = get_option( 'mwo_options' );
     $content_container_width = isset( $options['content_container_width'] ) ? $options['content_container_width'] : 1170;
     $enable_masonry = isset( $options['enable_masonry'] ) ? $options['enable_masonry'] : 1;
     $content_protection = isset( $options['content_protection'] ) ? $options['content_protection'] : 0;
@@ -298,8 +401,42 @@ function mwo_enqueue_assets() {
     // Add inline CSS for dynamic settings
     $menu_accent_color = isset( $options['menu_accent_color'] ) ? $options['menu_accent_color'] : '#c34143';
     $link_color = isset( $options['link_color'] ) ? $options['link_color'] : '#c34143';
+    $custom_font = isset( $options['custom_font'] ) ? $options['custom_font'] : '';
 
-    $custom_css = "
+    // Font sizes
+    $body_font_size = isset( $options['body_font_size'] ) ? $options['body_font_size'] : 16;
+    $heading_font_size = isset( $options['heading_font_size'] ) ? $options['heading_font_size'] : 32;
+    $menu_font_size = isset( $options['menu_font_size'] ) ? $options['menu_font_size'] : 16;
+    $site_title_font_size = isset( $options['site_title_font_size'] ) ? $options['site_title_font_size'] : 24;
+    $tagline_font_size = isset( $options['tagline_font_size'] ) ? $options['tagline_font_size'] : 14;
+    $button_font_size = isset( $options['button_font_size'] ) ? $options['button_font_size'] : 18;
+
+    // Generate custom font CSS if font is set
+    $custom_css = '';
+    if ( ! empty( $custom_font ) ) {
+        $custom_css .= mwo_generate_custom_font_css( $custom_font );
+    }
+
+    $custom_css .= "
+        body {
+            font-size: {$body_font_size}px;
+        }
+        .entry-content h1,
+        .entry-title {
+            font-size: {$heading_font_size}px;
+        }
+        .site-navigation a {
+            font-size: {$menu_font_size}px !important;
+        }
+        .site-title {
+            font-size: {$site_title_font_size}px !important;
+        }
+        .site-description {
+            font-size: {$tagline_font_size}px !important;
+        }
+        .intro-button {
+            font-size: {$button_font_size}px;
+        }
         .entry-content > :not(.wp-block-gallery) {
             max-width: {$content_container_width}px;
         }
@@ -681,6 +818,144 @@ function mwo_logo_width_callback() {
 }
 
 /**
+ * Custom font field callback
+ */
+function mwo_custom_font_callback() {
+    $options = get_option( 'mwo_options' );
+    $custom_font = isset( $options['custom_font'] ) ? $options['custom_font'] : '';
+
+    // Get the custom fonts directory path
+    $fonts_dir = get_template_directory() . '/assets/custom-fonts/';
+    $fonts_dir_exists = is_dir( $fonts_dir );
+    ?>
+    <input type="text" name="mwo_options[custom_font]" value="<?php echo esc_attr( $custom_font ); ?>" class="regular-text" placeholder="bijv. Proxima Nova">
+    <p class="description">
+        <?php esc_html_e( 'Voer de font family naam in (bijv. "Proxima Nova"). ', 'mwo' ); ?>
+        <?php if ( $fonts_dir_exists ) : ?>
+            <?php esc_html_e( 'Upload de font bestanden naar de ', 'mwo' ); ?>
+            <a href="<?php echo esc_url( get_template_directory_uri() . '/assets/custom-fonts/' ); ?>" target="_blank">
+                <code>/assets/custom-fonts/</code>
+            </a>
+            <?php esc_html_e( ' map', 'mwo' ); ?>
+        <?php else : ?>
+            <?php esc_html_e( 'Maak eerst de map ', 'mwo' ); ?>
+            <code>/assets/custom-fonts/</code>
+            <?php esc_html_e( ' aan in je theme directory en upload de font bestanden daarheen', 'mwo' ); ?>
+        <?php endif; ?>
+        <?php esc_html_e( ' met de naam in lowercase en streepjes (bijv. "proxima-nova.woff2").', 'mwo' ); ?>
+        <br>
+        <?php esc_html_e( 'Ondersteunde formaten: .woff2, .woff, .ttf', 'mwo' ); ?>
+        <br>
+        <em><?php esc_html_e( 'Laat leeg om het systeem font te gebruiken.', 'mwo' ); ?></em>
+    </p>
+    <?php
+}
+
+/**
+ * Body font size field callback
+ */
+function mwo_body_font_size_callback() {
+    $options = get_option( 'mwo_options' );
+    $body_font_size = isset( $options['body_font_size'] ) ? $options['body_font_size'] : 16;
+    ?>
+    <input type="number" name="mwo_options[body_font_size]" value="<?php echo esc_attr( $body_font_size ); ?>" min="12" step="1">
+    <span>px</span>
+    <p class="description"><?php esc_html_e( 'Lettergrootte voor alle content op de pagina (standaard: 16px).', 'mwo' ); ?></p>
+    <?php
+}
+
+/**
+ * Heading font size field callback
+ */
+function mwo_heading_font_size_callback() {
+    $options = get_option( 'mwo_options' );
+    $heading_font_size = isset( $options['heading_font_size'] ) ? $options['heading_font_size'] : 32;
+    ?>
+    <input type="number" name="mwo_options[heading_font_size]" value="<?php echo esc_attr( $heading_font_size ); ?>" min="20" step="1">
+    <span>px</span>
+    <p class="description"><?php esc_html_e( 'Lettergrootte voor H1 koppen op pagina\'s (standaard: 32px).', 'mwo' ); ?></p>
+    <?php
+}
+
+/**
+ * Menu font size field callback
+ */
+function mwo_menu_font_size_callback() {
+    $options = get_option( 'mwo_options' );
+    $menu_font_size = isset( $options['menu_font_size'] ) ? $options['menu_font_size'] : 16;
+    ?>
+    <input type="number" name="mwo_options[menu_font_size]" value="<?php echo esc_attr( $menu_font_size ); ?>" min="12" step="1">
+    <span>px</span>
+    <p class="description"><?php esc_html_e( 'Lettergrootte voor de menu items (standaard: 16px).', 'mwo' ); ?></p>
+    <?php
+}
+
+/**
+ * Site title font size field callback
+ */
+function mwo_site_title_font_size_callback() {
+    $options = get_option( 'mwo_options' );
+    $site_title_font_size = isset( $options['site_title_font_size'] ) ? $options['site_title_font_size'] : 24;
+    ?>
+    <input type="number" name="mwo_options[site_title_font_size]" value="<?php echo esc_attr( $site_title_font_size ); ?>" min="16" step="1">
+    <span>px</span>
+    <p class="description"><?php esc_html_e( 'Lettergrootte voor de site titel in de header (standaard: 24px).', 'mwo' ); ?></p>
+    <?php
+}
+
+/**
+ * Tagline font size field callback
+ */
+function mwo_tagline_font_size_callback() {
+    $options = get_option( 'mwo_options' );
+    $tagline_font_size = isset( $options['tagline_font_size'] ) ? $options['tagline_font_size'] : 14;
+    ?>
+    <input type="number" name="mwo_options[tagline_font_size]" value="<?php echo esc_attr( $tagline_font_size ); ?>" min="10" step="1">
+    <span>px</span>
+    <p class="description"><?php esc_html_e( 'Lettergrootte voor de ondertitel in de header (standaard: 14px).', 'mwo' ); ?></p>
+    <?php
+}
+
+/**
+ * Intro title font size field callback
+ */
+function mwo_intro_title_font_size_callback() {
+    $options = get_option( 'mwo_options' );
+    $intro_title_font_size = isset( $options['intro_title_font_size'] ) ? $options['intro_title_font_size'] : 56;
+    ?>
+    <input type="number" name="mwo_options[intro_title_font_size]" value="<?php echo esc_attr( $intro_title_font_size ); ?>" min="20" step="1">
+    <span>px</span>
+    <p class="description"><?php esc_html_e( 'Lettergrootte voor de titel op het introscherm (standaard: 56px).', 'mwo' ); ?></p>
+    <?php
+}
+
+/**
+ * Intro tagline font size field callback
+ */
+function mwo_intro_tagline_font_size_callback() {
+    $options = get_option( 'mwo_options' );
+    $intro_tagline_font_size = isset( $options['intro_tagline_font_size'] ) ? $options['intro_tagline_font_size'] : 19;
+    ?>
+    <input type="number" name="mwo_options[intro_tagline_font_size]" value="<?php echo esc_attr( $intro_tagline_font_size ); ?>" min="10" step="1">
+    <span>px</span>
+    <p class="description"><?php esc_html_e( 'Lettergrootte voor de ondertitel op het introscherm (standaard: 19px).', 'mwo' ); ?></p>
+    <?php
+}
+
+/**
+ * Button font size field callback
+ */
+function mwo_button_font_size_callback() {
+    $options = get_option( 'mwo_options' );
+    $button_font_size = isset( $options['button_font_size'] ) ? $options['button_font_size'] : 18;
+    ?>
+    <input type="number" name="mwo_options[button_font_size]" value="<?php echo esc_attr( $button_font_size ); ?>" min="12" step="1">
+    <span>px</span>
+    <p class="description"><?php esc_html_e( 'Lettergrootte voor de knop op het introscherm (standaard: 18px).', 'mwo' ); ?></p>
+    <?php
+}
+
+/**
  * Menu accent color field callback
  */
 function mwo_menu_accent_color_callback() {
@@ -889,7 +1164,7 @@ function mwo_content_container_width_callback() {
     ?>
     <input type="number" name="mwo_options[content_container_width]" value="<?php echo esc_attr( $content_container_width ); ?>" min="400" max="2000" step="10">
     <span>px</span>
-    <p class="description"><?php esc_html_e( 'Maximale breedte van de content container in de "Content Container" template.', 'mwo' ); ?></p>
+    <p class="description"><?php esc_html_e( 'Maximale breedte van de content in de "Content Container" template (exclusief galerijen).', 'mwo' ); ?></p>
     <?php
 }
 
@@ -1161,6 +1436,86 @@ function mwo_sanitize_options( $input ) {
         } elseif ( $sanitized['logo_width'] > 800 ) {
             $sanitized['logo_width'] = 800;
         }
+    }
+
+    // Custom font
+    if ( isset( $input['custom_font'] ) ) {
+        $sanitized['custom_font'] = sanitize_text_field( $input['custom_font'] );
+    } else {
+        $sanitized['custom_font'] = '';
+    }
+
+    // Font sizes
+    if ( isset( $input['body_font_size'] ) ) {
+        $sanitized['body_font_size'] = absint( $input['body_font_size'] );
+        if ( $sanitized['body_font_size'] < 12 ) {
+            $sanitized['body_font_size'] = 12;
+        }
+    } else {
+        $sanitized['body_font_size'] = 16;
+    }
+
+    if ( isset( $input['heading_font_size'] ) ) {
+        $sanitized['heading_font_size'] = absint( $input['heading_font_size'] );
+        if ( $sanitized['heading_font_size'] < 20 ) {
+            $sanitized['heading_font_size'] = 20;
+        }
+    } else {
+        $sanitized['heading_font_size'] = 32;
+    }
+
+    if ( isset( $input['menu_font_size'] ) ) {
+        $sanitized['menu_font_size'] = absint( $input['menu_font_size'] );
+        if ( $sanitized['menu_font_size'] < 12 ) {
+            $sanitized['menu_font_size'] = 12;
+        }
+    } else {
+        $sanitized['menu_font_size'] = 16;
+    }
+
+    if ( isset( $input['site_title_font_size'] ) ) {
+        $sanitized['site_title_font_size'] = absint( $input['site_title_font_size'] );
+        if ( $sanitized['site_title_font_size'] < 16 ) {
+            $sanitized['site_title_font_size'] = 16;
+        }
+    } else {
+        $sanitized['site_title_font_size'] = 24;
+    }
+
+    if ( isset( $input['tagline_font_size'] ) ) {
+        $sanitized['tagline_font_size'] = absint( $input['tagline_font_size'] );
+        if ( $sanitized['tagline_font_size'] < 10 ) {
+            $sanitized['tagline_font_size'] = 10;
+        }
+    } else {
+        $sanitized['tagline_font_size'] = 14;
+    }
+
+    if ( isset( $input['intro_title_font_size'] ) ) {
+        $sanitized['intro_title_font_size'] = absint( $input['intro_title_font_size'] );
+        if ( $sanitized['intro_title_font_size'] < 20 ) {
+            $sanitized['intro_title_font_size'] = 20;
+        }
+    } else {
+        $sanitized['intro_title_font_size'] = 56;
+    }
+
+    if ( isset( $input['intro_tagline_font_size'] ) ) {
+        $sanitized['intro_tagline_font_size'] = absint( $input['intro_tagline_font_size'] );
+        if ( $sanitized['intro_tagline_font_size'] < 10 ) {
+            $sanitized['intro_tagline_font_size'] = 10;
+        }
+    } else {
+        $sanitized['intro_tagline_font_size'] = 19;
+    }
+
+    if ( isset( $input['button_font_size'] ) ) {
+        $sanitized['button_font_size'] = absint( $input['button_font_size'] );
+        if ( $sanitized['button_font_size'] < 12 ) {
+            $sanitized['button_font_size'] = 12;
+        }
+    } else {
+        $sanitized['button_font_size'] = 18;
     }
 
     // Menu accent color

@@ -36,7 +36,27 @@ function mwo_register_organized_settings() {
     add_settings_field( 'mwo_disable_footer_credits', __( 'Footercredits uitschakelen', 'mwo' ), 'mwo_disable_footer_credits_callback', 'mwo-settings', 'mwo_layout_section' );
 
     // ============================================
-    // SECTION 2: COLORS
+    // SECTION 2: TYPOGRAPHY
+    // ============================================
+    add_settings_section(
+        'mwo_typography_section',
+        '<span class="mwo-section-title">Typografie</span>',
+        'mwo_typography_section_callback',
+        'mwo-settings'
+    );
+
+    add_settings_field( 'mwo_custom_font', __( 'Custom Font', 'mwo' ), 'mwo_custom_font_callback', 'mwo-settings', 'mwo_typography_section' );
+    add_settings_field( 'mwo_body_font_size', __( 'Pagina content lettergrootte', 'mwo' ), 'mwo_body_font_size_callback', 'mwo-settings', 'mwo_typography_section' );
+    add_settings_field( 'mwo_heading_font_size', __( 'Pagina koppen lettergrootte', 'mwo' ), 'mwo_heading_font_size_callback', 'mwo-settings', 'mwo_typography_section' );
+    add_settings_field( 'mwo_menu_font_size', __( 'Menu items lettergrootte', 'mwo' ), 'mwo_menu_font_size_callback', 'mwo-settings', 'mwo_typography_section' );
+    add_settings_field( 'mwo_site_title_font_size', __( 'Site titel lettergrootte', 'mwo' ), 'mwo_site_title_font_size_callback', 'mwo-settings', 'mwo_typography_section' );
+    add_settings_field( 'mwo_tagline_font_size', __( 'Ondertitel lettergrootte', 'mwo' ), 'mwo_tagline_font_size_callback', 'mwo-settings', 'mwo_typography_section' );
+    add_settings_field( 'mwo_intro_title_font_size', __( 'Intro titel lettergrootte', 'mwo' ), 'mwo_intro_title_font_size_callback', 'mwo-settings', 'mwo_typography_section' );
+    add_settings_field( 'mwo_intro_tagline_font_size', __( 'Intro ondertitel lettergrootte', 'mwo' ), 'mwo_intro_tagline_font_size_callback', 'mwo-settings', 'mwo_typography_section' );
+    add_settings_field( 'mwo_button_font_size', __( 'Knop lettergrootte (introscherm)', 'mwo' ), 'mwo_button_font_size_callback', 'mwo-settings', 'mwo_typography_section' );
+
+    // ============================================
+    // SECTION 3: COLORS
     // ============================================
     add_settings_section(
         'mwo_colors_section',
@@ -50,7 +70,7 @@ function mwo_register_organized_settings() {
     add_settings_field( 'mwo_darkmode', __( 'Darkmode', 'mwo' ), 'mwo_darkmode_callback', 'mwo-settings', 'mwo_colors_section' );
 
     // ============================================
-    // SECTION 3: PHOTOGRAPHY & GALLERIES
+    // SECTION 4: PHOTOGRAPHY & GALLERIES
     // ============================================
     add_settings_section(
         'mwo_photography_section',
@@ -128,6 +148,10 @@ function mwo_photography_section_callback() {
 
 function mwo_intro_section_callback() {
     echo '<p>' . esc_html__( 'Toon een introscherm dat bezoekers zien voordat ze je site betreden.', 'mwo' ) . '</p>';
+}
+
+function mwo_typography_section_callback() {
+    echo '<p>' . esc_html__( 'Configureer het lettertype en de lettergrootte van verschillende elementen.', 'mwo' ) . '</p>';
 }
 
 function mwo_social_section_callback() {
