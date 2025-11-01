@@ -393,6 +393,7 @@ function mwo_enqueue_assets() {
         // Add custom font and font sizes for intro screen
         $font_choice = isset( $options['font_choice'] ) ? $options['font_choice'] : 'system';
         $custom_font = isset( $options['custom_font'] ) ? $options['custom_font'] : '';
+        $font_size_unit = isset( $options['font_size_unit'] ) ? $options['font_size_unit'] : 'px';
         $intro_title_font_size = isset( $options['intro_title_font_size'] ) ? $options['intro_title_font_size'] : 56;
         $intro_tagline_font_size = isset( $options['intro_tagline_font_size'] ) ? $options['intro_tagline_font_size'] : 19;
         $button_font_size = isset( $options['button_font_size'] ) ? $options['button_font_size'] : 18;
@@ -413,13 +414,13 @@ function mwo_enqueue_assets() {
         // Add font sizes
         $intro_css .= "
             .intro-title {
-                font-size: {$intro_title_font_size}px;
+                font-size: {$intro_title_font_size}{$font_size_unit};
             }
             .intro-tagline {
-                font-size: {$intro_tagline_font_size}px;
+                font-size: {$intro_tagline_font_size}{$font_size_unit};
             }
             .intro-button {
-                font-size: {$button_font_size}px;
+                font-size: {$button_font_size}{$font_size_unit};
             }
         ";
 
@@ -504,6 +505,7 @@ function mwo_enqueue_assets() {
     $link_color = isset( $options['link_color'] ) ? $options['link_color'] : '#c34143';
     $font_choice = isset( $options['font_choice'] ) ? $options['font_choice'] : 'system';
     $custom_font = isset( $options['custom_font'] ) ? $options['custom_font'] : '';
+    $font_size_unit = isset( $options['font_size_unit'] ) ? $options['font_size_unit'] : 'px';
 
     // Font sizes
     $body_font_size = isset( $options['body_font_size'] ) ? $options['body_font_size'] : 16;
@@ -530,24 +532,24 @@ function mwo_enqueue_assets() {
         /* Typography */
         body {
             font-family: {$font_family};
-            font-size: {$body_font_size}px;
+            font-size: {$body_font_size}{$font_size_unit};
             color: {$text_color};
         }
         .entry-content h1,
         .entry-title {
-            font-size: {$heading_font_size}px;
+            font-size: {$heading_font_size}{$font_size_unit};
         }
         .site-navigation a {
-            font-size: {$menu_font_size}px !important;
+            font-size: {$menu_font_size}{$font_size_unit} !important;
         }
         .site-title {
-            font-size: {$site_title_font_size}px !important;
+            font-size: {$site_title_font_size}{$font_size_unit} !important;
         }
         .site-description {
-            font-size: {$tagline_font_size}px !important;
+            font-size: {$tagline_font_size}{$font_size_unit} !important;
         }
         .intro-button {
-            font-size: {$button_font_size}px;
+            font-size: {$button_font_size}{$font_size_unit};
         }
         .entry-content > :not(.wp-block-gallery) {
             max-width: {$content_container_width}px;
@@ -1069,15 +1071,93 @@ function mwo_custom_font_callback() {
 }
 
 /**
+ * Font size unit field callback
+ */
+function mwo_font_size_unit_callback() {
+    $options = get_option( 'mwo_options' );
+    $font_size_unit = isset( $options['font_size_unit'] ) ? $options['font_size_unit'] : 'px';
+
+    $units = array(
+        'px' => array(
+            'name' => 'Pixels (px)',
+            'description' => 'Vaste grootte, standaard en meest gebruikt'
+        ),
+        'rem' => array(
+            'name' => 'Root EM (rem)',
+            'description' => 'Relatief aan root lettergrootte, ideaal voor responsive design'
+        ),
+        'em' => array(
+            'name' => 'EM (em)',
+            'description' => 'Relatief aan parent element, schaalt mee met omliggende tekst'
+        ),
+        '%' => array(
+            'name' => 'Percentage (%)',
+            'description' => 'Relatief aan parent element lettergrootte'
+        )
+    );
+    ?>
+    <select name="mwo_options[font_size_unit]" id="mwo_font_size_unit">
+        <?php foreach ( $units as $value => $unit ) : ?>
+            <option value="<?php echo esc_attr( $value ); ?>" <?php selected( $font_size_unit, $value ); ?>>
+                <?php echo esc_html( $unit['name'] ); ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
+    <p class="description">
+        <?php esc_html_e( 'Kies de eenheid voor alle lettergrootties hieronder.', 'mwo' ); ?>
+        <br>
+        <strong><?php esc_html_e( 'Tip:', 'mwo' ); ?></strong>
+        <?php if ( $font_size_unit === 'px' ) : ?>
+            <?php echo esc_html( $units['px']['description'] ); ?>
+        <?php elseif ( $font_size_unit === 'rem' ) : ?>
+            <?php echo esc_html( $units['rem']['description'] ); ?>. <?php esc_html_e( '1rem = 16px (standaard browser grootte)', 'mwo' ); ?>
+        <?php elseif ( $font_size_unit === 'em' ) : ?>
+            <?php echo esc_html( $units['em']['description'] ); ?>
+        <?php else : ?>
+            <?php echo esc_html( $units['%']['description'] ); ?>. <?php esc_html_e( '100% = parent lettergrootte', 'mwo' ); ?>
+        <?php endif; ?>
+    </p>
+
+    <script>
+    (function() {
+        var unitSelect = document.getElementById('mwo_font_size_unit');
+        if (unitSelect) {
+            unitSelect.addEventListener('change', function() {
+                var selectedUnit = this.value;
+                var step = (selectedUnit === 'px') ? '1' : '0.1';
+
+                // Update all font unit labels
+                var unitLabels = document.querySelectorAll('.mwo-font-unit');
+                unitLabels.forEach(function(label) {
+                    label.textContent = selectedUnit;
+                });
+
+                // Update all font size input steps
+                var fontInputs = document.querySelectorAll('input[name*="font_size"]');
+                fontInputs.forEach(function(input) {
+                    if (input.type === 'number' && input.name !== 'mwo_options[font_size_unit]') {
+                        input.step = step;
+                    }
+                });
+            });
+        }
+    })();
+    </script>
+    <?php
+}
+
+/**
  * Body font size field callback
  */
 function mwo_body_font_size_callback() {
     $options = get_option( 'mwo_options' );
     $body_font_size = isset( $options['body_font_size'] ) ? $options['body_font_size'] : 16;
+    $font_size_unit = isset( $options['font_size_unit'] ) ? $options['font_size_unit'] : 'px';
+    $step = ( $font_size_unit === 'px' ) ? '1' : '0.1';
     ?>
-    <input type="number" name="mwo_options[body_font_size]" value="<?php echo esc_attr( $body_font_size ); ?>" min="12" step="1">
-    <span>px</span>
-    <p class="description"><?php esc_html_e( 'Lettergrootte voor alle content op de pagina (standaard: 16px).', 'mwo' ); ?></p>
+    <input type="number" name="mwo_options[body_font_size]" value="<?php echo esc_attr( $body_font_size ); ?>" step="<?php echo esc_attr( $step ); ?>">
+    <span class="mwo-font-unit"><?php echo esc_html( $font_size_unit ); ?></span>
+    <p class="description"><?php esc_html_e( 'Lettergrootte voor alle content op de pagina.', 'mwo' ); ?></p>
     <?php
 }
 
@@ -1087,10 +1167,12 @@ function mwo_body_font_size_callback() {
 function mwo_heading_font_size_callback() {
     $options = get_option( 'mwo_options' );
     $heading_font_size = isset( $options['heading_font_size'] ) ? $options['heading_font_size'] : 32;
+    $font_size_unit = isset( $options['font_size_unit'] ) ? $options['font_size_unit'] : 'px';
+    $step = ( $font_size_unit === 'px' ) ? '1' : '0.1';
     ?>
-    <input type="number" name="mwo_options[heading_font_size]" value="<?php echo esc_attr( $heading_font_size ); ?>" min="20" step="1">
-    <span>px</span>
-    <p class="description"><?php esc_html_e( 'Lettergrootte voor H1 koppen op pagina\'s (standaard: 32px).', 'mwo' ); ?></p>
+    <input type="number" name="mwo_options[heading_font_size]" value="<?php echo esc_attr( $heading_font_size ); ?>" step="<?php echo esc_attr( $step ); ?>">
+    <span class="mwo-font-unit"><?php echo esc_html( $font_size_unit ); ?></span>
+    <p class="description"><?php esc_html_e( 'Lettergrootte voor H1 koppen op pagina\'s.', 'mwo' ); ?></p>
     <?php
 }
 
@@ -1114,10 +1196,12 @@ function mwo_headings_uppercase_callback() {
 function mwo_menu_font_size_callback() {
     $options = get_option( 'mwo_options' );
     $menu_font_size = isset( $options['menu_font_size'] ) ? $options['menu_font_size'] : 16;
+    $font_size_unit = isset( $options['font_size_unit'] ) ? $options['font_size_unit'] : 'px';
+    $step = ( $font_size_unit === 'px' ) ? '1' : '0.1';
     ?>
-    <input type="number" name="mwo_options[menu_font_size]" value="<?php echo esc_attr( $menu_font_size ); ?>" min="12" step="1">
-    <span>px</span>
-    <p class="description"><?php esc_html_e( 'Lettergrootte voor de menu items (standaard: 16px).', 'mwo' ); ?></p>
+    <input type="number" name="mwo_options[menu_font_size]" value="<?php echo esc_attr( $menu_font_size ); ?>" step="<?php echo esc_attr( $step ); ?>">
+    <span class="mwo-font-unit"><?php echo esc_html( $font_size_unit ); ?></span>
+    <p class="description"><?php esc_html_e( 'Lettergrootte voor de menu items.', 'mwo' ); ?></p>
     <?php
 }
 
@@ -1141,10 +1225,12 @@ function mwo_menu_uppercase_callback() {
 function mwo_site_title_font_size_callback() {
     $options = get_option( 'mwo_options' );
     $site_title_font_size = isset( $options['site_title_font_size'] ) ? $options['site_title_font_size'] : 24;
+    $font_size_unit = isset( $options['font_size_unit'] ) ? $options['font_size_unit'] : 'px';
+    $step = ( $font_size_unit === 'px' ) ? '1' : '0.1';
     ?>
-    <input type="number" name="mwo_options[site_title_font_size]" value="<?php echo esc_attr( $site_title_font_size ); ?>" min="16" step="1">
-    <span>px</span>
-    <p class="description"><?php esc_html_e( 'Lettergrootte voor de site titel in de header (standaard: 24px).', 'mwo' ); ?></p>
+    <input type="number" name="mwo_options[site_title_font_size]" value="<?php echo esc_attr( $site_title_font_size ); ?>" step="<?php echo esc_attr( $step ); ?>">
+    <span class="mwo-font-unit"><?php echo esc_html( $font_size_unit ); ?></span>
+    <p class="description"><?php esc_html_e( 'Lettergrootte voor de site titel in de header.', 'mwo' ); ?></p>
     <?php
 }
 
@@ -1154,10 +1240,12 @@ function mwo_site_title_font_size_callback() {
 function mwo_tagline_font_size_callback() {
     $options = get_option( 'mwo_options' );
     $tagline_font_size = isset( $options['tagline_font_size'] ) ? $options['tagline_font_size'] : 14;
+    $font_size_unit = isset( $options['font_size_unit'] ) ? $options['font_size_unit'] : 'px';
+    $step = ( $font_size_unit === 'px' ) ? '1' : '0.1';
     ?>
-    <input type="number" name="mwo_options[tagline_font_size]" value="<?php echo esc_attr( $tagline_font_size ); ?>" min="10" step="1">
-    <span>px</span>
-    <p class="description"><?php esc_html_e( 'Lettergrootte voor de ondertitel in de header (standaard: 14px).', 'mwo' ); ?></p>
+    <input type="number" name="mwo_options[tagline_font_size]" value="<?php echo esc_attr( $tagline_font_size ); ?>" step="<?php echo esc_attr( $step ); ?>">
+    <span class="mwo-font-unit"><?php echo esc_html( $font_size_unit ); ?></span>
+    <p class="description"><?php esc_html_e( 'Lettergrootte voor de ondertitel in de header.', 'mwo' ); ?></p>
     <?php
 }
 
@@ -1167,10 +1255,12 @@ function mwo_tagline_font_size_callback() {
 function mwo_intro_title_font_size_callback() {
     $options = get_option( 'mwo_options' );
     $intro_title_font_size = isset( $options['intro_title_font_size'] ) ? $options['intro_title_font_size'] : 56;
+    $font_size_unit = isset( $options['font_size_unit'] ) ? $options['font_size_unit'] : 'px';
+    $step = ( $font_size_unit === 'px' ) ? '1' : '0.1';
     ?>
-    <input type="number" name="mwo_options[intro_title_font_size]" value="<?php echo esc_attr( $intro_title_font_size ); ?>" min="20" step="1">
-    <span>px</span>
-    <p class="description"><?php esc_html_e( 'Lettergrootte voor de titel op het introscherm (standaard: 56px).', 'mwo' ); ?></p>
+    <input type="number" name="mwo_options[intro_title_font_size]" value="<?php echo esc_attr( $intro_title_font_size ); ?>" step="<?php echo esc_attr( $step ); ?>">
+    <span class="mwo-font-unit"><?php echo esc_html( $font_size_unit ); ?></span>
+    <p class="description"><?php esc_html_e( 'Lettergrootte voor de titel op het introscherm.', 'mwo' ); ?></p>
     <?php
 }
 
@@ -1180,10 +1270,12 @@ function mwo_intro_title_font_size_callback() {
 function mwo_intro_tagline_font_size_callback() {
     $options = get_option( 'mwo_options' );
     $intro_tagline_font_size = isset( $options['intro_tagline_font_size'] ) ? $options['intro_tagline_font_size'] : 19;
+    $font_size_unit = isset( $options['font_size_unit'] ) ? $options['font_size_unit'] : 'px';
+    $step = ( $font_size_unit === 'px' ) ? '1' : '0.1';
     ?>
-    <input type="number" name="mwo_options[intro_tagline_font_size]" value="<?php echo esc_attr( $intro_tagline_font_size ); ?>" min="10" step="1">
-    <span>px</span>
-    <p class="description"><?php esc_html_e( 'Lettergrootte voor de ondertitel op het introscherm (standaard: 19px).', 'mwo' ); ?></p>
+    <input type="number" name="mwo_options[intro_tagline_font_size]" value="<?php echo esc_attr( $intro_tagline_font_size ); ?>" step="<?php echo esc_attr( $step ); ?>">
+    <span class="mwo-font-unit"><?php echo esc_html( $font_size_unit ); ?></span>
+    <p class="description"><?php esc_html_e( 'Lettergrootte voor de ondertitel op het introscherm.', 'mwo' ); ?></p>
     <?php
 }
 
@@ -1193,10 +1285,12 @@ function mwo_intro_tagline_font_size_callback() {
 function mwo_button_font_size_callback() {
     $options = get_option( 'mwo_options' );
     $button_font_size = isset( $options['button_font_size'] ) ? $options['button_font_size'] : 18;
+    $font_size_unit = isset( $options['font_size_unit'] ) ? $options['font_size_unit'] : 'px';
+    $step = ( $font_size_unit === 'px' ) ? '1' : '0.1';
     ?>
-    <input type="number" name="mwo_options[button_font_size]" value="<?php echo esc_attr( $button_font_size ); ?>" min="12" step="1">
-    <span>px</span>
-    <p class="description"><?php esc_html_e( 'Lettergrootte voor de knop op het introscherm (standaard: 18px).', 'mwo' ); ?></p>
+    <input type="number" name="mwo_options[button_font_size]" value="<?php echo esc_attr( $button_font_size ); ?>" step="<?php echo esc_attr( $step ); ?>">
+    <span class="mwo-font-unit"><?php echo esc_html( $font_size_unit ); ?></span>
+    <p class="description"><?php esc_html_e( 'Lettergrootte voor de knop op het introscherm.', 'mwo' ); ?></p>
     <?php
 }
 
@@ -1789,75 +1883,59 @@ function mwo_sanitize_options( $input ) {
         $sanitized['custom_font'] = '';
     }
 
-    // Font sizes
+    // Font size unit
+    if ( isset( $input['font_size_unit'] ) ) {
+        $valid_units = array( 'px', 'rem', 'em', '%' );
+        $sanitized['font_size_unit'] = in_array( $input['font_size_unit'], $valid_units ) ? $input['font_size_unit'] : 'px';
+    } else {
+        $sanitized['font_size_unit'] = isset( $existing['font_size_unit'] ) ? $existing['font_size_unit'] : 'px';
+    }
+
+    // Font sizes - now supports decimal values for rem/em/%
     if ( isset( $input['body_font_size'] ) ) {
-        $sanitized['body_font_size'] = absint( $input['body_font_size'] );
-        if ( $sanitized['body_font_size'] < 12 ) {
-            $sanitized['body_font_size'] = 12;
-        }
+        $sanitized['body_font_size'] = floatval( $input['body_font_size'] );
     } else {
         $sanitized['body_font_size'] = 16;
     }
 
     if ( isset( $input['heading_font_size'] ) ) {
-        $sanitized['heading_font_size'] = absint( $input['heading_font_size'] );
-        if ( $sanitized['heading_font_size'] < 20 ) {
-            $sanitized['heading_font_size'] = 20;
-        }
+        $sanitized['heading_font_size'] = floatval( $input['heading_font_size'] );
     } else {
         $sanitized['heading_font_size'] = 32;
     }
 
     if ( isset( $input['menu_font_size'] ) ) {
-        $sanitized['menu_font_size'] = absint( $input['menu_font_size'] );
-        if ( $sanitized['menu_font_size'] < 12 ) {
-            $sanitized['menu_font_size'] = 12;
-        }
+        $sanitized['menu_font_size'] = floatval( $input['menu_font_size'] );
     } else {
         $sanitized['menu_font_size'] = 16;
     }
 
     if ( isset( $input['site_title_font_size'] ) ) {
-        $sanitized['site_title_font_size'] = absint( $input['site_title_font_size'] );
-        if ( $sanitized['site_title_font_size'] < 16 ) {
-            $sanitized['site_title_font_size'] = 16;
-        }
+        $sanitized['site_title_font_size'] = floatval( $input['site_title_font_size'] );
     } else {
         $sanitized['site_title_font_size'] = 24;
     }
 
     if ( isset( $input['tagline_font_size'] ) ) {
-        $sanitized['tagline_font_size'] = absint( $input['tagline_font_size'] );
-        if ( $sanitized['tagline_font_size'] < 10 ) {
-            $sanitized['tagline_font_size'] = 10;
-        }
+        $sanitized['tagline_font_size'] = floatval( $input['tagline_font_size'] );
     } else {
         $sanitized['tagline_font_size'] = 14;
     }
 
     if ( isset( $input['intro_title_font_size'] ) ) {
-        $sanitized['intro_title_font_size'] = absint( $input['intro_title_font_size'] );
-        if ( $sanitized['intro_title_font_size'] < 20 ) {
-            $sanitized['intro_title_font_size'] = 20;
-        }
+        $sanitized['intro_title_font_size'] = floatval( $input['intro_title_font_size'] );
     } else {
         $sanitized['intro_title_font_size'] = 56;
     }
 
     if ( isset( $input['intro_tagline_font_size'] ) ) {
-        $sanitized['intro_tagline_font_size'] = absint( $input['intro_tagline_font_size'] );
-        if ( $sanitized['intro_tagline_font_size'] < 10 ) {
-            $sanitized['intro_tagline_font_size'] = 10;
-        }
+        $sanitized['intro_tagline_font_size'] = floatval( $input['intro_tagline_font_size'] );
     } else {
         $sanitized['intro_tagline_font_size'] = 19;
     }
 
     if ( isset( $input['button_font_size'] ) ) {
-        $sanitized['button_font_size'] = absint( $input['button_font_size'] );
-        if ( $sanitized['button_font_size'] < 12 ) {
-            $sanitized['button_font_size'] = 12;
-        }
+        $sanitized['button_font_size'] = floatval( $input['button_font_size'] );
     } else {
         $sanitized['button_font_size'] = 18;
     }

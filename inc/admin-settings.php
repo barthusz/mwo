@@ -46,6 +46,7 @@ function mwo_register_organized_settings() {
     );
 
     add_settings_field( 'mwo_custom_font', __( 'Lettertype', 'mwo' ), 'mwo_custom_font_callback', 'mwo-settings', 'mwo_typography_section' );
+    add_settings_field( 'mwo_font_size_unit', __( 'Lettergrootte eenheid', 'mwo' ), 'mwo_font_size_unit_callback', 'mwo-settings', 'mwo_typography_section' );
     add_settings_field( 'mwo_body_font_size', __( 'Pagina content lettergrootte', 'mwo' ), 'mwo_body_font_size_callback', 'mwo-settings', 'mwo_typography_section' );
     add_settings_field( 'mwo_heading_font_size', __( 'Pagina koppen lettergrootte', 'mwo' ), 'mwo_heading_font_size_callback', 'mwo-settings', 'mwo_typography_section' );
     add_settings_field( 'mwo_headings_uppercase', __( 'Pagina koppen in hoofdletters', 'mwo' ), 'mwo_headings_uppercase_callback', 'mwo-settings', 'mwo_typography_section' );
