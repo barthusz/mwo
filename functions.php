@@ -1224,12 +1224,24 @@ function mwo_custom_css_callback() {
         jQuery(document).ready(function($) {
             if (typeof wp !== 'undefined' && wp.codeEditor) {
                 var editor = wp.codeEditor.initialize('mwo_custom_css', <?php echo wp_json_encode( $settings ); ?>);
+
                 // Refresh editor after initialization to fix line number alignment
                 setTimeout(function() {
                     if (editor.codemirror) {
                         editor.codemirror.refresh();
                     }
                 }, 1);
+
+                // Refresh CodeMirror when tab becomes visible
+                // This fixes the issue where CodeMirror doesn't render properly in hidden tabs
+                $(document).on('click', '.mwo-tab-nav button', function() {
+                    // Small delay to ensure tab is visible before refresh
+                    setTimeout(function() {
+                        if (editor.codemirror) {
+                            editor.codemirror.refresh();
+                        }
+                    }, 50);
+                });
             }
         });
         </script>
