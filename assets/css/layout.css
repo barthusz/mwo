@@ -117,21 +117,11 @@ body.menu-top .entry-header {
 /* Menu links: content links uitgelijnd */
 body.menu-left .content-container-template .entry-content > :not(.wp-block-gallery) {
     margin-left: 0;
-    text-align: left;
-}
-
-body.menu-left .content-container-template .entry-content * {
-    text-align: left;
 }
 
 /* Menu boven: container gecentreerd, content links uitgelijnd */
 body.menu-top .content-container-template .entry-content > :not(.wp-block-gallery) {
     margin: 0 auto;
-    text-align: left;
-}
-
-body.menu-top .content-container-template .entry-content * {
-    text-align: left;
 }
 
 /* Footer */
