@@ -1,0 +1,61 @@
+Deze CSS kun je eventueel toepassen (of een deel ervan) als je het menu boven hebt maar op mobiel toch elementen links uitgelijnd wilt hebben.
+Er zit ook een deel Contact Form 7 styling bij.
+
+form {
+	max-width: 100%;
+}
+.wpcf7 label {
+	display: inline-block;
+	margin-bottom: 0.6em;
+	margin-right: 2em;
+}
+.wpcf7 input, .wpcf7 textarea {
+	border: 3px solid #eee;
+	padding: .8em;
+}
+.wpcf7 input:focus, .wpcf7 textarea:focus {
+	border-color: #555;
+	outline: 0;
+}
+.wpcf7 input[type=submit] {
+	padding: 1.5em 2.5em;
+	letter-spacing: 1px;
+	border: 3px solid #333;
+	background-color: #FFF;
+	font-family: 'BelleroseLight', ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	font-size: 13px;
+	line-height: 1.2;
+	text-transform: uppercase;
+	transition: 0.3s all ease-in;
+}
+.wpcf7 input[type=submit]:hover {
+	background-color: #333;
+	color: #FFF;
+}
+.grecaptcha-badge {
+	display: none !important;
+}
+@media (min-width : 769px) {
+	.wpcf7 {
+		display: flex;
+		justify-content: center;
+	}
+	form {
+		max-width: 340px;
+	}
+}
+
+@media (max-width : 768px) {
+	h1.entry-title {
+		text-align: left;
+	}
+	form input, form textarea {
+		width: 100% !important;
+	}
+	.items-justified-center {
+		justify-content: flex-start !important;
+	}
+	.has-text-align-center {
+		text-align: left !important;
+	}
+}
