@@ -30,11 +30,8 @@ $homepage_url = home_url( '/' );
     <script>
     // Set cookie immediately when intro page loads (JavaScript ensures it's available immediately)
     (function() {
-        // Set cookie for 24 hours
-        var date = new Date();
-        date.setTime(date.getTime() + (24 * 60 * 60 * 1000));
-        var expires = "; expires=" + date.toUTCString();
-        document.cookie = "mwo_intro_seen=1" + expires + "; path=/; SameSite=Lax";
+        // Set session cookie (expires when browser is closed)
+        document.cookie = "mwo_intro_seen=1; path=/; SameSite=Lax";
     })();
     </script>
 </head>
@@ -82,11 +79,8 @@ document.addEventListener('DOMContentLoaded', function() {
     var button = document.getElementById('intro-button');
     if (button) {
         button.addEventListener('click', function(e) {
-            // Make absolutely sure the cookie is set
-            var date = new Date();
-            date.setTime(date.getTime() + (24 * 60 * 60 * 1000));
-            var expires = "; expires=" + date.toUTCString();
-            document.cookie = "mwo_intro_seen=1" + expires + "; path=/; SameSite=Lax";
+            // Make absolutely sure the session cookie is set
+            document.cookie = "mwo_intro_seen=1; path=/; SameSite=Lax";
 
             // Small delay to ensure cookie is written
             e.preventDefault();
