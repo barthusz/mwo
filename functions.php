@@ -315,6 +315,11 @@ function mwo_enqueue_assets() {
         // Generate custom font CSS if font is set
         if ( ! empty( $custom_font ) ) {
             $intro_css .= mwo_generate_custom_font_css( $custom_font );
+        } else {
+            // Apply system font stack as fallback when no custom font is set
+            $intro_css .= "body {\n";
+            $intro_css .= "    font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif;\n";
+            $intro_css .= "}\n\n";
         }
 
         // Add font sizes
@@ -429,9 +434,15 @@ function mwo_enqueue_assets() {
         $custom_css .= mwo_generate_custom_font_css( $custom_font );
     }
 
+    // Define font-family - use custom font if set, otherwise use system font stack
+    $font_family = ! empty( $custom_font )
+        ? "'" . esc_attr( $custom_font ) . "', ui-sans-serif, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif"
+        : "ui-sans-serif, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif";
+
     $custom_css .= "
         /* Typography */
         body {
+            font-family: {$font_family};
             font-size: {$body_font_size}px;
             color: {$text_color};
         }
