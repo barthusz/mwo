@@ -220,6 +220,92 @@ function mwo_setup() {
 add_action( 'after_setup_theme', 'mwo_setup' );
 
 /**
+ * Get available web-safe fonts with their font stacks
+ *
+ * @return array Array of web-safe fonts with name and stack
+ */
+function mwo_get_web_safe_fonts() {
+    return array(
+        'system' => array(
+            'name' => 'Systeem Font (Standaard)',
+            'stack' => 'ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+        ),
+        'arial' => array(
+            'name' => 'Arial',
+            'stack' => 'Arial, "Helvetica Neue", Helvetica, sans-serif'
+        ),
+        'helvetica' => array(
+            'name' => 'Helvetica',
+            'stack' => '"Helvetica Neue", Helvetica, Arial, sans-serif'
+        ),
+        'times' => array(
+            'name' => 'Times New Roman',
+            'stack' => '"Times New Roman", Times, serif'
+        ),
+        'georgia' => array(
+            'name' => 'Georgia',
+            'stack' => 'Georgia, Times, "Times New Roman", serif'
+        ),
+        'verdana' => array(
+            'name' => 'Verdana',
+            'stack' => 'Verdana, Geneva, sans-serif'
+        ),
+        'courier' => array(
+            'name' => 'Courier New',
+            'stack' => '"Courier New", Courier, monospace'
+        ),
+        'trebuchet' => array(
+            'name' => 'Trebuchet MS',
+            'stack' => '"Trebuchet MS", "Lucida Grande", "Lucida Sans Unicode", sans-serif'
+        ),
+        'palatino' => array(
+            'name' => 'Palatino',
+            'stack' => 'Palatino, "Palatino Linotype", "Palatino LT STD", "Book Antiqua", Georgia, serif'
+        ),
+        'garamond' => array(
+            'name' => 'Garamond',
+            'stack' => 'Garamond, Baskerville, "Baskerville Old Face", "Hoefler Text", "Times New Roman", serif'
+        ),
+        'custom' => array(
+            'name' => 'Custom Font (Uploaden)',
+            'stack' => ''
+        )
+    );
+}
+
+/**
+ * Get the font family stack based on current settings
+ *
+ * @return string The font-family CSS value
+ */
+function mwo_get_font_family() {
+    $options = get_option( 'mwo_options' );
+    $font_choice = isset( $options['font_choice'] ) ? $options['font_choice'] : 'system';
+    $custom_font = isset( $options['custom_font'] ) ? $options['custom_font'] : '';
+
+    $web_safe_fonts = mwo_get_web_safe_fonts();
+
+    // Backwards compatibility: If no font_choice is set but custom_font has a value,
+    // treat it as custom font selection
+    if ( ! isset( $options['font_choice'] ) && ! empty( $custom_font ) ) {
+        $font_choice = 'custom';
+    }
+
+    // If custom font is selected and has a value
+    if ( $font_choice === 'custom' && ! empty( $custom_font ) ) {
+        return "'" . esc_attr( $custom_font ) . "', ui-sans-serif, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif";
+    }
+
+    // Return the selected web-safe font stack
+    if ( isset( $web_safe_fonts[ $font_choice ] ) ) {
+        return $web_safe_fonts[ $font_choice ]['stack'];
+    }
+
+    // Fallback to system font
+    return $web_safe_fonts['system']['stack'];
+}
+
+/**
  * Generate custom font CSS with @font-face
  * Checks for font files in /assets/custom-fonts/ directory
  * Supports: woff2, woff, ttf
@@ -305,6 +391,7 @@ function mwo_enqueue_assets() {
         wp_enqueue_script( 'mwo-intro-screen', get_template_directory_uri() . '/js/intro-screen.js', array( 'jquery' ), '1.0.0', true );
 
         // Add custom font and font sizes for intro screen
+        $font_choice = isset( $options['font_choice'] ) ? $options['font_choice'] : 'system';
         $custom_font = isset( $options['custom_font'] ) ? $options['custom_font'] : '';
         $intro_title_font_size = isset( $options['intro_title_font_size'] ) ? $options['intro_title_font_size'] : 56;
         $intro_tagline_font_size = isset( $options['intro_tagline_font_size'] ) ? $options['intro_tagline_font_size'] : 19;
@@ -312,13 +399,14 @@ function mwo_enqueue_assets() {
 
         $intro_css = '';
 
-        // Generate custom font CSS if font is set
-        if ( ! empty( $custom_font ) ) {
+        // Generate custom font CSS if custom font is selected and font is set
+        if ( $font_choice === 'custom' && ! empty( $custom_font ) ) {
             $intro_css .= mwo_generate_custom_font_css( $custom_font );
         } else {
-            // Apply system font stack as fallback when no custom font is set
+            // Apply selected font family (web-safe or system font)
+            $font_family = mwo_get_font_family();
             $intro_css .= "body {\n";
-            $intro_css .= "    font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif;\n";
+            $intro_css .= "    font-family: {$font_family};\n";
             $intro_css .= "}\n\n";
         }
 
@@ -414,6 +502,7 @@ function mwo_enqueue_assets() {
     $menu_color = isset( $options['menu_color'] ) ? $options['menu_color'] : '#333333';
     $menu_accent_color = isset( $options['menu_accent_color'] ) ? $options['menu_accent_color'] : '#c34143';
     $link_color = isset( $options['link_color'] ) ? $options['link_color'] : '#c34143';
+    $font_choice = isset( $options['font_choice'] ) ? $options['font_choice'] : 'system';
     $custom_font = isset( $options['custom_font'] ) ? $options['custom_font'] : '';
 
     // Font sizes
@@ -428,16 +517,14 @@ function mwo_enqueue_assets() {
     $headings_uppercase = isset( $options['headings_uppercase'] ) ? $options['headings_uppercase'] : 0;
     $menu_uppercase = isset( $options['menu_uppercase'] ) ? $options['menu_uppercase'] : 0;
 
-    // Generate custom font CSS if font is set
+    // Generate custom font CSS if custom font is selected and font is set
     $custom_css = '';
-    if ( ! empty( $custom_font ) ) {
+    if ( $font_choice === 'custom' && ! empty( $custom_font ) ) {
         $custom_css .= mwo_generate_custom_font_css( $custom_font );
     }
 
-    // Define font-family - use custom font if set, otherwise use system font stack
-    $font_family = ! empty( $custom_font )
-        ? "'" . esc_attr( $custom_font ) . "', ui-sans-serif, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif"
-        : "ui-sans-serif, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif";
+    // Get font-family from helper function
+    $font_family = mwo_get_font_family();
 
     $custom_css .= "
         /* Typography */
@@ -916,32 +1003,68 @@ function mwo_logo_width_callback() {
  */
 function mwo_custom_font_callback() {
     $options = get_option( 'mwo_options' );
+    $font_choice = isset( $options['font_choice'] ) ? $options['font_choice'] : 'system';
     $custom_font = isset( $options['custom_font'] ) ? $options['custom_font'] : '';
+
+    // Backwards compatibility: If no font_choice is set but custom_font has a value,
+    // pre-select 'custom' in the dropdown
+    if ( ! isset( $options['font_choice'] ) && ! empty( $custom_font ) ) {
+        $font_choice = 'custom';
+    }
+
+    // Get web-safe fonts from helper function
+    $web_safe_fonts = mwo_get_web_safe_fonts();
 
     // Get the custom fonts directory path
     $fonts_dir = get_template_directory() . '/assets/custom-fonts/';
     $fonts_dir_exists = is_dir( $fonts_dir );
     ?>
-    <input type="text" name="mwo_options[custom_font]" value="<?php echo esc_attr( $custom_font ); ?>" class="regular-text" placeholder="bijv. Proxima Nova">
-    <p class="description">
-        <?php esc_html_e( 'Voer de font family naam in (bijv. "Proxima Nova"). ', 'mwo' ); ?>
-        <?php if ( $fonts_dir_exists ) : ?>
-            <?php esc_html_e( 'Upload de font bestanden naar de ', 'mwo' ); ?>
-            <a href="<?php echo esc_url( get_template_directory_uri() . '/assets/custom-fonts/' ); ?>" target="_blank">
+
+    <select name="mwo_options[font_choice]" id="mwo_font_choice" class="regular-text">
+        <?php foreach ( $web_safe_fonts as $key => $font ) : ?>
+            <option value="<?php echo esc_attr( $key ); ?>" <?php selected( $font_choice, $key ); ?>>
+                <?php echo esc_html( $font['name'] ); ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
+
+    <div id="mwo_custom_font_container" style="margin-top: 15px; <?php echo ( $font_choice !== 'custom' ) ? 'display: none;' : ''; ?>">
+        <input type="text" name="mwo_options[custom_font]" id="mwo_custom_font_input" value="<?php echo esc_attr( $custom_font ); ?>" class="regular-text" placeholder="bijv. Proxima Nova">
+        <p class="description">
+            <?php esc_html_e( 'Voer de font family naam in (bijv. "Proxima Nova"). ', 'mwo' ); ?>
+            <?php if ( $fonts_dir_exists ) : ?>
+                <?php esc_html_e( 'Upload de font bestanden naar de ', 'mwo' ); ?>
+                <a href="<?php echo esc_url( get_template_directory_uri() . '/assets/custom-fonts/' ); ?>" target="_blank">
+                    <code>/assets/custom-fonts/</code>
+                </a>
+                <?php esc_html_e( ' map', 'mwo' ); ?>
+            <?php else : ?>
+                <?php esc_html_e( 'Maak eerst de map ', 'mwo' ); ?>
                 <code>/assets/custom-fonts/</code>
-            </a>
-            <?php esc_html_e( ' map', 'mwo' ); ?>
-        <?php else : ?>
-            <?php esc_html_e( 'Maak eerst de map ', 'mwo' ); ?>
-            <code>/assets/custom-fonts/</code>
-            <?php esc_html_e( ' aan in je theme directory en upload de font bestanden daarheen', 'mwo' ); ?>
-        <?php endif; ?>
-        <?php esc_html_e( ' met de naam in lowercase en streepjes (bijv. "proxima-nova.woff2").', 'mwo' ); ?>
-        <br>
-        <?php esc_html_e( 'Ondersteunde formaten: .woff2, .woff, .ttf', 'mwo' ); ?>
-        <br>
-        <em><?php esc_html_e( 'Laat leeg om het systeem font te gebruiken.', 'mwo' ); ?></em>
-    </p>
+                <?php esc_html_e( ' aan in je theme directory en upload de font bestanden daarheen', 'mwo' ); ?>
+            <?php endif; ?>
+            <?php esc_html_e( ' met de naam in lowercase en streepjes (bijv. "proxima-nova.woff2").', 'mwo' ); ?>
+            <br>
+            <?php esc_html_e( 'Ondersteunde formaten: .woff2, .woff, .ttf', 'mwo' ); ?>
+        </p>
+    </div>
+
+    <script>
+    (function() {
+        var fontChoice = document.getElementById('mwo_font_choice');
+        var customFontContainer = document.getElementById('mwo_custom_font_container');
+
+        if (fontChoice && customFontContainer) {
+            fontChoice.addEventListener('change', function() {
+                if (this.value === 'custom') {
+                    customFontContainer.style.display = 'block';
+                } else {
+                    customFontContainer.style.display = 'none';
+                }
+            });
+        }
+    })();
+    </script>
     <?php
 }
 
@@ -1637,6 +1760,14 @@ function mwo_sanitize_options( $input ) {
         } elseif ( $sanitized['logo_width'] > 800 ) {
             $sanitized['logo_width'] = 800;
         }
+    }
+
+    // Font choice
+    if ( isset( $input['font_choice'] ) ) {
+        $valid_fonts = array_keys( mwo_get_web_safe_fonts() );
+        $sanitized['font_choice'] = in_array( $input['font_choice'], $valid_fonts ) ? $input['font_choice'] : 'system';
+    } else {
+        $sanitized['font_choice'] = isset( $existing['font_choice'] ) ? $existing['font_choice'] : 'system';
     }
 
     // Custom font
