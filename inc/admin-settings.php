@@ -163,7 +163,7 @@ function mwo_photography_section_callback() {
 }
 
 function mwo_intro_section_callback() {
-    echo '<p>' . esc_html__( 'Toon een introscherm dat bezoekers zien voordat ze je site betreden. Let op, hiervoor dien je een pagina aan te maken met de naam "Intro" en de template van deze pagina aan te passen naar "Intro Screen".', 'mwo' ) . '</p>';
+    echo '<p>' . esc_html__( 'Toon een introscherm dat bezoekers zien voordat ze je site betreden. Let op, hiervoor dien je een blanco pagina aan te maken met de naam "Intro" en de template van deze pagina aan te passen naar "Intro Screen".', 'mwo' ) . '</p>';
 }
 
 function mwo_typography_section_callback() {
